@@ -1,4 +1,4 @@
-package simpleDB
+package simplemysql
 
 import (
 	"database/sql"
