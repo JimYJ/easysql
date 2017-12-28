@@ -10,13 +10,13 @@ go get github.com/JimYJ/simpleDB/mysql
 
 # Usage
 
-import:
+**import:**
 
 ```go
 import "github.com/JimYJ/simpleDB/mysql"
 ```
 
-conn db:
+**conn db:**
 ```go
 mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 mysqldb, err := mysql.GetMysqlConn()
