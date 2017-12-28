@@ -52,7 +52,7 @@ rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users whe
 **If you do not want to expose the database field name,you can set field name:**
 ```go
 mysql.SetFields([]string{"username", "useremail"})
-rows,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users WHERE id = ?",2)
+row,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users WHERE id = ?",2)
 or
 mysql.SetFields([]string{"username", "useremail"})
 rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
