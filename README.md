@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/json-iterator/go.svg?branch=master)](https://travis-ci.org/json-iterator/go)
+[![Build Status](https://travis-ci.org/JimYJ/simpleDB/builds/322489736)](https://travis-ci.org/JimYJ/simpleDB/builds/322489736)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/json-iterator/go/master/LICENSE)
 
 simpleDB encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
