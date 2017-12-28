@@ -55,7 +55,7 @@ mysql.SetFields([]string{"username", "useremail"})
 rows,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users WHERE id = ?",2)
 or
 mysql.SetFields([]string{"username", "useremail"})
-rows,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
+rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
 ```
 
 
