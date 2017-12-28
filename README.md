@@ -5,7 +5,7 @@ simpleDB encapsulated database operation, simplifying the use of the database.(i
 # How to get
 
 ```
-go get github.com/JimYJ/simpleDB/simplemysql
+go get github.com/JimYJ/simpleDB/mysql
 ```
 
 # Usage
@@ -13,28 +13,49 @@ go get github.com/JimYJ/simpleDB/simplemysql
 import:
 
 ```go
-import "github.com/JimYJ/simpleDB"
+import "github.com/JimYJ/simpleDB/mysql"
+```
+
+conn db:
+```go
+mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.GetMysqlConn()
 ```
 
 get value:
 
 ```go
-mysql := simpleDB.GetMysqlConn("0.0.0.0", 3306, "DBname", "root", "123456")
-value,err := mysql.GetVal("SELECT count(*) FROM users")
+value,err := mysqldb.GetVal("SELECT count(*) FROM users")
 ```
 
 get single row data:
-
 ```go
-mysql := simpleDB.GetMysqlConn("0.0.0.0", 3306, "DBname", "root", "123456")
-value,err := mysql.GetRow(simplemysql.Normal,"SELECT name,email FROM users WHERE id = 2")
-or
-value,err := mysql.GetRow(simplemysql.Normal,"SELECT name,email FROM users WHERE id = ?",2)
+row,err := mysqldb.GetRow(mysql.Normal,"SELECT name,email FROM users WHERE id = 2")
 ```
 
 get single row data with statement:
 ```go
-mysql := simpleDB.GetMysqlConn("0.0.0.0", 3306, "DBname", "root", "123456")
-row,err := mysql.GetRow(simplemysql.Statement,"SELECT name,email FROM users WHERE id = ?",2)
+row,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users WHERE id = ?",2)
 ```
+
+get multi-rows data:
+```go
+rows,err := mysqldb.GetResults(mysql.Normal,"SELECT name,email FROM users where type = 'public'")
+```
+
+get single row data with statement:
+```go
+rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
+```
+
+
+If you do not want to expose the database field name,you can set field name:
+```go
+mysql.SetFields([]string{"username", "useremail"})
+rows,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users WHERE id = ?",2)
+or
+mysql.SetFields([]string{"username", "useremail"})
+rows,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
+```
+
 
