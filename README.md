@@ -1,4 +1,4 @@
-[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)]
+![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)
 
 simpleDB encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
 
