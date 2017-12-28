@@ -43,7 +43,7 @@ row,err := mysqldb.GetRow(mysql.Statement,"SELECT name,email FROM users WHERE id
 rows,err := mysqldb.GetResults(mysql.Normal,"SELECT name,email FROM users where type = 'public'")
 ```
 
-**get single row data with statement:**
+**get multi-rows data with statement:**
 ```go
 rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
 ```
