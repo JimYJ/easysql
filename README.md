@@ -1,11 +1,11 @@
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/ugorji/go/master/LICENSE)
 
-simpleDB encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
+EasyDB encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
 
 # How to get
 
 ```
-go get github.com/JimYJ/simpleDB/mysql
+go get github.com/JimYJ/EasyDB/mysql
 ```
 
 # Usage
@@ -13,7 +13,7 @@ go get github.com/JimYJ/simpleDB/mysql
 **import:**
 
 ```go
-import "github.com/JimYJ/simpleDB/mysql"
+import "github.com/JimYJ/EasyDB/mysql"
 ```
 
 **conn db:**
