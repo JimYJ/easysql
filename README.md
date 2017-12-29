@@ -25,7 +25,14 @@ mysqldb, err := mysql.GetMysqlConn()
 **get value:**
 
 ```go
-value,err := mysqldb.GetVal("SELECT count(*) FROM users")
+value,err := mysqldb.GetVal(mysql.Normal,"SELECT count(*) FROM users")
+```
+**get value with statement:**
+
+```go
+value,err := mysqldb.GetVal(mysql.Statement,"SELECT count(*) FROM users")
+or
+value,err := mysqldb.GetVal(mysql.Statement,"SELECT count(*) FROM users where type = ?","public")
 ```
 
 **get single row data:**
@@ -57,5 +64,26 @@ or
 mysql.SetFields([]string{"username", "useremail"})
 rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users where type = ?","public")
 ```
+
+**insert:**
+```go
+insertId, err := mysqldb.Insert(mysql.Normal, "insert into users set name = ?", "jim")
+```
+
+**insert with statement:**
+```go
+insertId, err := mysqldb.Insert(mysql.Statement, "insert into users set name = ?", "jim")
+```
+
+**updata:**
+```go
+rowsAffected, err := mysqldb.Update(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
+```
+
+**updata with statement:**
+```go
+rowsAffected, err := mysqldb.Update(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
+```
+
 
 
