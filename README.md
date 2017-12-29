@@ -104,7 +104,6 @@ mysqlconn.TxBegin()
 insertId, err := mysqlconn.TxInsert(mysql.Normal, "insert into users set name = ?", "jim")
 rowsAffected, err := mysqlconn.TxUpdate(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
 rowsAffected, err := mysqlconn.TxDelete(mysql.Normal, "delete from users where id =?", 453)
-
 mysqlconn.TxRollback()
 or
 mysqlconn.TxCommit()
@@ -116,7 +115,6 @@ mysqlconn.TxBegin()
 insertId, err := mysqlconn.TxInsert(mysql.Statement, "insert into users set name = ?", "jim")
 rowsAffected, err := mysqlconn.TxUpdate(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
 rowsAffected, err := mysqlconn.TxDelete(mysql.Statement, "delete from users where id =?", 453)
-
 mysqlconn.TxRollback()
 or
 mysqlconn.TxCommit()
