@@ -86,5 +86,39 @@ rowsAffected, err := mysqldb.Update(mysql.Normal, "update users set name = ? whe
 rowsAffected, err := mysqldb.Update(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
 ```
 
+**delete:**
+```go
+rowsAffected, err := mysqldb.Delete(mysql.Normal, "delete from users where id =?", 453)
+```
+
+**delete with statement:**
+```go
+rowsAffected, err := mysqldb.Delete(mysql.Statement, "delete from users where id =?", 453)
+```
+
+**transaction:**
+```go
+mysqlconn.TxBegin()
+insertId, err := mysqlconn.TxInsert(mysql.Normal, "insert into users set name = ?", "jim")
+rowsAffected, err := mysqlconn.TxUpdate(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
+rowsAffected, err := mysqlconn.TxDelete(mysql.Normal, "delete from users where id =?", 453)
+
+mysqlconn.TxRollback()
+or
+mysqlconn.TxCommit()
+```
+
+**transaction with statement:**
+```go
+mysqlconn.TxBegin()
+insertId, err := mysqlconn.TxInsert(mysql.Statement, "insert into users set name = ?", "jim")
+rowsAffected, err := mysqlconn.TxUpdate(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
+rowsAffected, err := mysqlconn.TxDelete(mysql.Statement, "delete from users where id =?", 453)
+
+mysqlconn.TxRollback()
+or
+mysqlconn.TxCommit()
+```
+
 
 
