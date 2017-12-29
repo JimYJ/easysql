@@ -20,6 +20,7 @@ import "github.com/JimYJ/EasyDB/mysql"
 ```go
 mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 mysqldb, err := mysql.GetMysqlConn()//singleton pattern
+or
 mysqldb, err := mysql.NewMysqlConn("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 ```
 
