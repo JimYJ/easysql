@@ -70,6 +70,7 @@ rows,err := mysqldb.GetResults(mysql.Statement,"SELECT name,email FROM users whe
 insertId, err := mysqldb.Insert(mysql.Normal, "insert into users set name = ?", "jim")
 ```
 
+
 **insert with statement:**
 ```go
 insertId, err := mysqldb.Insert(mysql.Statement, "insert into users set name = ?", "jim")
