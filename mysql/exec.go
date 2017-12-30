@@ -42,6 +42,7 @@ func (self *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int
 }
 
 func (self *MysqlDB) Update(qtype int, query string, args ...interface{}) (int64, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtExec(query, update, args...)
 	} else {
@@ -50,6 +51,7 @@ func (self *MysqlDB) Update(qtype int, query string, args ...interface{}) (int64
 }
 
 func (self *MysqlDB) Insert(qtype int, query string, args ...interface{}) (int64, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtExec(query, insert, args...)
 	} else {
@@ -58,6 +60,7 @@ func (self *MysqlDB) Insert(qtype int, query string, args ...interface{}) (int64
 }
 
 func (self *MysqlDB) Delete(qtype int, query string, args ...interface{}) (int64, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtExec(query, delete, args...)
 	} else {

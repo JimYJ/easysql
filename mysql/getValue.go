@@ -21,6 +21,7 @@ func (self *MysqlDB) getValByStmt(query string, param ...interface{}) (string, e
 }
 
 func (self *MysqlDB) GetVal(qtype int, query string, param ...interface{}) (string, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.getValByStmt(query, param...)
 	} else {

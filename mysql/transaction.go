@@ -90,6 +90,7 @@ func (self *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (i
 }
 
 func (self *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int64, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtTxExec(query, update, args...)
 	} else {
@@ -98,6 +99,7 @@ func (self *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int
 }
 
 func (self *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int64, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtTxExec(query, insert, args...)
 	} else {
@@ -106,6 +108,7 @@ func (self *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int
 }
 
 func (self *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int64, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtTxExec(query, delete, args...)
 	} else {

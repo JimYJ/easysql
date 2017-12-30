@@ -14,6 +14,7 @@ var (
 	insert        int      = 0
 	update        int      = 1
 	delete        int      = 2
+	charset       string   = "utf8"
 	customColumns []string = nil
 	mysqldb       *MysqlDB
 	once          sync.Once
@@ -22,12 +23,14 @@ var (
 	dBName        string
 	dBuser        string
 	dBpass        string
+	dbcharset     string
 	isinit        bool
 	maxIdleConns  int
 	maxOpenConns  int
+	lastQuery     string
 )
 
-func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MaxIdleConns int, MaxOpenConns int) {
+func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MysqlDBcharset string, MaxIdleConns int, MaxOpenConns int) {
 	dBHost = MysqlDBHost
 	dBPort = MysqlDBPort
 	dBName = MysqlDBName
@@ -36,6 +39,11 @@ func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser s
 	isinit = true
 	maxIdleConns = MaxIdleConns
 	maxOpenConns = MaxOpenConns
+	if len(MysqlDBcharset) == 0 {
+		dbcharset = charset
+	} else {
+		dbcharset = MysqlDBcharset
+	}
 }
 
 func GetMysqlConn() (*MysqlDB, error) {
@@ -44,25 +52,31 @@ func GetMysqlConn() (*MysqlDB, error) {
 	}
 	var err error
 	once.Do(func() {
-		mysqldb = &MysqlDB{dBHost, dBuser, dBName, dBpass, dBPort, nil, nil, nil}
+		mysqldb = &MysqlDB{dBHost, dBuser, dBName, dBpass, dbcharset, dBPort, nil, nil, nil}
 		err = mysqldb.Conn(maxIdleConns, maxOpenConns)
 	})
 	return mysqldb, err
 }
 
-func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MaxIdleConns int, MaxOpenConns int) (*MysqlDB, error) {
+func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MysqlDBcharset string, MaxIdleConns int, MaxOpenConns int) (*MysqlDB, error) {
 	var err error
-	mysqldb = &MysqlDB{MysqlDBHost, MysqlDBuser, MysqlDBName, MysqlDBpass, MysqlDBPort, nil, nil, nil}
+	var DBcharset string
+	if len(MysqlDBcharset) == 0 {
+		DBcharset = charset
+	} else {
+		DBcharset = MysqlDBcharset
+	}
+	mysqldb = &MysqlDB{MysqlDBHost, MysqlDBuser, MysqlDBName, MysqlDBpass, DBcharset, MysqlDBPort, nil, nil, nil}
 	err = mysqldb.Conn(MaxIdleConns, MaxOpenConns)
 	return mysqldb, err
 }
 
 type MysqlDB struct {
-	host, user, dbname, pass string
-	port                     int
-	dbConn                   *sql.DB
-	fieldlist                []string
-	tx                       *sql.Tx
+	host, user, dbname, pass, charset string
+	port                              int
+	dbConn                            *sql.DB
+	fieldlist                         []string
+	tx                                *sql.Tx
 }
 
 func (self *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
@@ -70,7 +84,8 @@ func (self *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
 		errs := errors.New("DB param is not initialize!")
 		return errs
 	}
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8", self.user, self.pass, self.host, self.port, self.dbname))
+	lastQuery = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s", self.user, self.pass, self.host, self.port, self.dbname, self.charset)
+	db, err := sql.Open("mysql", lastQuery)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,7 @@ import (
 )
 
 func (self *MysqlDB) GetResults(qtype int, query string, param ...interface{}) ([]map[string]string, error) {
+	lastQuery = query
 	if qtype == Statement {
 		return self.stmtQuery(query, param...)
 	} else {

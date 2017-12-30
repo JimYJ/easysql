@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/JimYJ/EasyDB.svg?branch=master)](https://travis-ci.org/JimYJ/EasyDB)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/ugorji/go/master/LICENSE)
 
 EasyDB encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
