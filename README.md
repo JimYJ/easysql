@@ -8,7 +8,7 @@ EasyDB encapsulated database operation, simplifying the use of the database.(inc
 go get github.com/JimYJ/EasyDB/mysql
 ```
 
-# Third party libs
+# Mysql driver
 ```go
 github.com/Go-SQL-Driver/MySQL
 ```
