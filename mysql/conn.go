@@ -11,9 +11,9 @@ import (
 var (
 	Statement     int      = 1
 	Normal        int      = 0
-	Insert        int      = 0
-	Update        int      = 1
-	Delete        int      = 2
+	insert        int      = 0
+	update        int      = 1
+	delete        int      = 2
 	customColumns []string = nil
 	mysqldb       *MysqlDB
 	once          sync.Once
