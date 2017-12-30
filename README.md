@@ -126,9 +126,9 @@ or
 mysqlconn.TxCommit()
 ```
 
-**Debug:**
+**debug:**
 ```go
-lastQuery = mysqlconn.GetLastQuery()
+lastQuery string = mysqlconn.GetLastQuery()
 ```
 
 
