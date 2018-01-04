@@ -2,6 +2,7 @@ package mysql
 
 func (self *MysqlDB) exec(query string, qtype int, args ...interface{}) (int64, error) {
 	rs, err := self.dbConn.Exec(query, args...)
+	printErrors(err)
 	if err != nil {
 		return 0, err
 	}
@@ -13,23 +14,20 @@ func (self *MysqlDB) exec(query string, qtype int, args ...interface{}) (int64, 
 		result, err2 = rs.RowsAffected()
 	}
 	self.fieldlist = nil
+	printErrors(err2)
 	return result, err2
 }
 
 func (self *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int64, error) {
 	stmt, err := self.dbConn.Prepare(query)
+	printErrors(err)
 	if err != nil {
 		return 0, err
 	}
 	rs, err := stmt.Exec(args...)
+	printErrors(err)
 	if err != nil {
-		if qtype == insert {
-			return 0, err
-		} else if qtype == update {
-			return 0, err
-		} else if qtype == delete {
-			return 0, err
-		}
+		return 0, err
 	}
 	var result int64
 	var err2 error
@@ -38,6 +36,7 @@ func (self *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int
 	} else if qtype == update || qtype == delete {
 		result, err2 = rs.RowsAffected()
 	}
+	printErrors(err2)
 	return result, err2
 }
 

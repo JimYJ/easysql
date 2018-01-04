@@ -1,13 +1,13 @@
-[![Build Status](https://travis-ci.org/JimYJ/EasyDB.svg?branch=master)](https://travis-ci.org/JimYJ/EasyDB)
+[![Build Status](https://travis-ci.org/JimYJ/easysql.svg?branch=master)](https://travis-ci.org/JimYJ/easysql)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/ugorji/go/master/LICENSE)
-[中文说明](https://github.com/JimYJ/EasyDB/blob/master/README-CN.md) 
+[中文说明](https://github.com/JimYJ/easysql/blob/master/README-CN.md) 
 
-EasyDB encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
+easysql encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
 
 # How to get
 
 ```
-go get github.com/JimYJ/EasyDB/mysql
+go get github.com/JimYJ/easysql/mysql
 ```
 
 # Mysql driver
@@ -20,15 +20,20 @@ github.com/Go-SQL-Driver/MySQL
 **import:**
 
 ```go
-import "github.com/JimYJ/EasyDB/mysql"
+import "github.com/JimYJ/easysql/mysql"
 ```
 
 **conn db:**
 ```go
 mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
-mysqldb, err := mysql.GetMysqlConn()//singleton pattern
+mysqldb, err := mysql.Getmysqldb()//singleton pattern
 or
-mysqldb, err := mysql.NewMysqlConn("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+```
+
+**close conn:**
+```go
+mysqldb.Close()
 ```
 
 **get value:**
@@ -107,29 +112,45 @@ rowsAffected, err := mysqldb.Delete(mysql.Statement, "delete from users where id
 
 **transaction:**
 ```go
-mysqlconn.TxBegin()
-insertId, err := mysqlconn.TxInsert(mysql.Normal, "insert into users set name = ?", "jim")
-rowsAffected, err := mysqlconn.TxUpdate(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
-rowsAffected, err := mysqlconn.TxDelete(mysql.Normal, "delete from users where id =?", 453)
-mysqlconn.TxRollback()
+mysqldb.TxBegin()
+insertId, err := mysqldb.TxInsert(mysql.Normal, "insert into users set name = ?", "jim")
+rowsAffected, err := mysqldb.TxUpdate(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
+rowsAffected, err := mysqldb.TxDelete(mysql.Normal, "delete from users where id =?", 453)
+mysqldb.TxRollback()
 or
-mysqlconn.TxCommit()
+mysqldb.TxCommit()
 ```
 
 **transaction with statement:**
 ```go
-mysqlconn.TxBegin()
-insertId, err := mysqlconn.TxInsert(mysql.Statement, "insert into users set name = ?", "jim")
-rowsAffected, err := mysqlconn.TxUpdate(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
-rowsAffected, err := mysqlconn.TxDelete(mysql.Statement, "delete from users where id =?", 453)
-mysqlconn.TxRollback()
+mysqldb.TxBegin()
+insertId, err := mysqldb.TxInsert(mysql.Statement, "insert into users set name = ?", "jim")
+rowsAffected, err := mysqldb.TxUpdate(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
+rowsAffected, err := mysqldb.TxDelete(mysql.Statement, "delete from users where id =?", 453)
+mysqldb.TxRollback()
 or
-mysqlconn.TxCommit()
+mysqldb.TxCommit()
 ```
 
-**debug:**
+**debug: print last query**
 ```go
-lastQuery string = mysqlconn.GetLastQuery()
+mysql.Debug()
+```
+
+**print all errors**
+```go
+mysql.ShowErrors()
+mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.Getmysqldb()
+...
+or
+mysql.ShowErrors()
+mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+```
+
+**hide all errors**
+```go
+mysql.HideErrors()
 ```
 
 

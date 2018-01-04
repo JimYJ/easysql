@@ -28,6 +28,13 @@ var (
 	maxIdleConns  int
 	maxOpenConns  int
 	lastQuery     string
+	showErrors    bool = false
+)
+
+var (
+	errorInit     string = "DB param is not initialize!"
+	errorSetField string = "Field List is Error!"
+	errorTxInit   string = "Transaction didn't initializtion!"
 )
 
 func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MysqlDBcharset string, MaxIdleConns int, MaxOpenConns int) {
@@ -48,12 +55,13 @@ func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser s
 
 func GetMysqlConn() (*MysqlDB, error) {
 	if isinit == false {
-		return nil, errors.New("DB param is not initialize!")
+		return nil, errors.New(errorInit)
 	}
 	var err error
 	once.Do(func() {
 		mysqldb = &MysqlDB{dBHost, dBuser, dBName, dBpass, dbcharset, dBPort, nil, nil, nil}
 		err = mysqldb.Conn(maxIdleConns, maxOpenConns)
+		printErrors(err)
 	})
 	return mysqldb, err
 }
@@ -68,6 +76,7 @@ func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, Mysql
 	}
 	mysqldb = &MysqlDB{MysqlDBHost, MysqlDBuser, MysqlDBName, MysqlDBpass, DBcharset, MysqlDBPort, nil, nil, nil}
 	err = mysqldb.Conn(MaxIdleConns, MaxOpenConns)
+	printErrors(err)
 	return mysqldb, err
 }
 
@@ -81,18 +90,21 @@ type MysqlDB struct {
 
 func (self *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
 	if self.host == "" || self.pass == "" || self.user == "" || self.dbname == "" {
-		errs := errors.New("DB param is not initialize!")
+		errs := errors.New(errorInit)
+		printErrors(errs)
 		return errs
 	}
 	lastQuery = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s", self.user, self.pass, self.host, self.port, self.dbname, self.charset)
 	db, err := sql.Open("mysql", lastQuery)
 	if err != nil {
+		printErrors(err)
 		return err
 	}
 	db.SetMaxIdleConns(MaxIdleConns)
 	db.SetMaxOpenConns(MaxOpenConns)
 	err2 := db.Ping()
 	if err2 != nil {
+		printErrors(err2)
 		return err2
 	}
 	self.dbConn = db

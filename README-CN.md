@@ -1,12 +1,12 @@
-[![Build Status](https://travis-ci.org/JimYJ/EasyDB.svg?branch=master)](https://travis-ci.org/JimYJ/EasyDB)
+[![Build Status](https://travis-ci.org/JimYJ/easysql.svg?branch=master)](https://travis-ci.org/JimYJ/easysql)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/ugorji/go/master/LICENSE)
-[English](https://github.com/JimYJ/EasyDB/blob/master/README.md) 
+[English](https://github.com/JimYJ/easysql/blob/master/README.md) 
 
-EasyDB 封装了数据库操作，简化了数据库的使用，目前已支持Mysql，今后将会支持更多数据库
+easysql 封装了数据库操作，简化了数据库的使用，目前已支持Mysql，今后将会支持更多数据库
 # 获取和安装
 
 ```
-go get github.com/JimYJ/EasyDB/mysql
+go get github.com/JimYJ/easysql/mysql
 ```
 
 # Mysql驱动（使用go get获取安装）
@@ -19,25 +19,29 @@ github.com/Go-SQL-Driver/MySQL
 **引用本库:**
 
 ```go
-import "github.com/JimYJ/EasyDB/mysql"
+import "github.com/JimYJ/easysql/mysql"
 ```
 
 **连接数据库:** 
-Init()只需要初始化一次，GetMysqlConn()为并发安全的单例模式，可以多次调用，推荐使用，考虑到多数据库的连接，NewMysqlConn()没有做保护，请谨慎调用，建议再封装一层
+Init()只需要初始化一次，Getmysqldb()为并发安全的单例模式，可以多次调用，推荐使用，考虑到多数据库的连接，Newmysqldb()没有做保护，请谨慎调用，建议再封装一层
 ```go
 mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
-mysqldb, err := mysql.GetMysqlConn()//singleton pattern
+mysqldb, err := mysql.Getmysqldb()//singleton pattern
 or
-mysqldb, err := mysql.NewMysqlConn("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+```
+
+**关闭连接:**
+```go
+mysqldb.Close()
 ```
 
 **获取值:**
-
 ```go
 value,err := mysqldb.GetVal(mysql.Normal,"SELECT count(*) FROM users")
 ```
-**Stmt模式获取值（推荐）:**
 
+**Stmt模式获取值（推荐）:**
 ```go
 value,err := mysqldb.GetVal(mysql.Statement,"SELECT count(*) FROM users")
 or
@@ -107,30 +111,46 @@ rowsAffected, err := mysqldb.Delete(mysql.Statement, "delete from users where id
 
 **事务操作:**
 ```go
-mysqlconn.TxBegin()
-insertId, err := mysqlconn.TxInsert(mysql.Normal, "insert into users set name = ?", "jim")
-rowsAffected, err := mysqlconn.TxUpdate(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
-rowsAffected, err := mysqlconn.TxDelete(mysql.Normal, "delete from users where id =?", 453)
-mysqlconn.TxRollback()
+mysqldb.TxBegin()
+insertId, err := mysqldb.TxInsert(mysql.Normal, "insert into users set name = ?", "jim")
+rowsAffected, err := mysqldb.TxUpdate(mysql.Normal, "update users set name = ? where id =?", "jim", 1)
+rowsAffected, err := mysqldb.TxDelete(mysql.Normal, "delete from users where id =?", 453)
+mysqldb.TxRollback()
 or
-mysqlconn.TxCommit()
+mysqldb.TxCommit()
 ```
 
 **Stmt模式事务操作（推荐）:**
 ```go
-mysqlconn.TxBegin()
-insertId, err := mysqlconn.TxInsert(mysql.Statement, "insert into users set name = ?", "jim")
-rowsAffected, err := mysqlconn.TxUpdate(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
-rowsAffected, err := mysqlconn.TxDelete(mysql.Statement, "delete from users where id =?", 453)
-mysqlconn.TxRollback()
+mysqldb.TxBegin()
+insertId, err := mysqldb.TxInsert(mysql.Statement, "insert into users set name = ?", "jim")
+rowsAffected, err := mysqldb.TxUpdate(mysql.Statement, "update users set name = ? where id =?", "jim", 1)
+rowsAffected, err := mysqldb.TxDelete(mysql.Statement, "delete from users where id =?", 453)
+mysqldb.TxRollback()
 or
-mysqlconn.TxCommit()
+mysqldb.TxCommit()
 ```
 
 **调试:**
-GetLastQuery()会返回最新操作的SQL
+Debug()会打印最新操作的SQL
 ```go
-lastQuery string = mysqlconn.GetLastQuery()
+mysql.Debug()
+```
+
+**打印所有错误信息**
+```go
+mysql.ShowErrors()
+mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.Getmysqldb()
+...
+or
+mysql.ShowErrors()
+mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+```
+
+**关闭打印错误信息**
+```go
+mysql.HideErrors()
 ```
 
 

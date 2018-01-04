@@ -15,17 +15,21 @@ func (self *MysqlDB) GetRow(qtype int, query string, param ...interface{}) (map[
 
 func (self *MysqlDB) queryRow(query string) (map[string]string, error) {
 	rows, err := self.dbConn.Query(query)
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	columns, err := rows.Columns()
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	/* check custom field*/
 	if self.fieldlist != nil && len(columns) != len(self.fieldlist) {
-		return nil, errors.New("Field List is Error!")
+		err := errors.New(errorSetField)
+		printErrors(err)
+		return nil, err
 	}
 	var clos []string
 	if self.fieldlist == nil {
@@ -41,8 +45,8 @@ func (self *MysqlDB) queryRow(query string) (map[string]string, error) {
 	}
 	rowData := make(map[string]string, len(columns))
 	for rows.Next() {
-		_ = rows.Scan(colbuff...)
-		// common.ErrHendle("Scan Warning:", err)
+		err := rows.Scan(colbuff...)
+		printErrors(err)
 		for k, column := range columnName {
 			rowData[clos[k]] = string(column)
 		}
@@ -54,11 +58,13 @@ func (self *MysqlDB) queryRow(query string) (map[string]string, error) {
 
 func (self *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string]string, error) {
 	stmt, err := self.dbConn.Prepare(query)
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(param...)
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +74,9 @@ func (self *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[strin
 	}
 	/* check custom field*/
 	if self.fieldlist != nil && len(columns) != len(self.fieldlist) {
-		return nil, errors.New("Field List is Error!")
+		err := errors.New(errorSetField)
+		printErrors(err)
+		return nil, err
 	}
 	var clos []string
 	if self.fieldlist == nil {
@@ -84,8 +92,8 @@ func (self *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[strin
 	}
 	rowData := make(map[string]string, len(columns))
 	for rows.Next() {
-		_ = rows.Scan(colbuff...)
-		// common.ErrHendle("Scan Warning:", err)
+		err := rows.Scan(colbuff...)
+		printErrors(err)
 		for k, column := range columnName {
 			rowData[clos[k]] = string(column)
 		}

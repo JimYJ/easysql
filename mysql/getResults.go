@@ -15,17 +15,21 @@ func (self *MysqlDB) GetResults(qtype int, query string, param ...interface{}) (
 
 func (self *MysqlDB) query(query string) ([]map[string]string, error) {
 	rows, err := self.dbConn.Query(query)
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	columns, err := rows.Columns()
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	/* check custom field*/
 	if self.fieldlist != nil && len(columns) != len(self.fieldlist) {
-		return nil, errors.New("Field List is Error!")
+		errs := errors.New(errorSetField)
+		printErrors(errs)
+		return nil, errs
 	}
 	var clos []string
 	if self.fieldlist == nil {
@@ -55,21 +59,24 @@ func (self *MysqlDB) query(query string) ([]map[string]string, error) {
 
 func (self *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]string, error) {
 	stmt, err := self.dbConn.Prepare(query)
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(param...)
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	columns, err := rows.Columns()
+	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	/* check custom field*/
 	if self.fieldlist != nil && len(columns) != len(self.fieldlist) {
-		return nil, errors.New("Field List is Error!")
+		return nil, errors.New(errorSetField)
 	}
 	var clos []string
 	if self.fieldlist == nil {
@@ -85,8 +92,8 @@ func (self *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string
 	}
 	var result []map[string]string
 	for rows.Next() {
-		_ = rows.Scan(colbuff...)
-		// common.ErrHendle("Scan Warning:", err)
+		err := rows.Scan(colbuff...)
+		printErrors(err)
 		rowData := make(map[string]string, len(columns))
 		for k, column := range columnName {
 			rowData[clos[k]] = string(column)
