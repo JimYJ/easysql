@@ -28,7 +28,7 @@ var (
 	maxIdleConns  int
 	maxOpenConns  int
 	lastQuery     string
-	showErrors    bool = false
+	showErrors    bool = true
 )
 
 var (

@@ -9,11 +9,11 @@ func Debug() {
 	return
 }
 
-func ShowErrors() {
+func DebugMode() {
 	showErrors = true
 }
 
-func HideErrors() {
+func ReleaseMode() {
 	showErrors = false
 }
 
