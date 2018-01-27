@@ -4,9 +4,9 @@ import (
 	"errors"
 )
 
-func (self *MysqlDB) TxBegin() error {
+func (mdb *MysqlDB) TxBegin() error {
 	var err error
-	self.tx, err = self.dbConn.Begin()
+	mdb.tx, err = mdb.dbConn.Begin()
 	printErrors(err)
 	if err != nil {
 		return err
@@ -15,13 +15,13 @@ func (self *MysqlDB) TxBegin() error {
 	}
 }
 
-func (self *MysqlDB) TxCommit() error {
-	if self.tx == nil {
+func (mdb *MysqlDB) TxCommit() error {
+	if mdb.tx == nil {
 		err := errors.New("Transaction didn't initializtion!")
 		printErrors(err)
 		return err
 	}
-	err := self.tx.Commit()
+	err := mdb.tx.Commit()
 	printErrors(err)
 	if err != nil {
 		return err
@@ -30,13 +30,13 @@ func (self *MysqlDB) TxCommit() error {
 	}
 }
 
-func (self *MysqlDB) TxRollback() error {
-	if self.tx == nil {
+func (mdb *MysqlDB) TxRollback() error {
+	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
 		printErrors(err)
 		return err
 	}
-	err := self.tx.Rollback()
+	err := mdb.tx.Rollback()
 	printErrors(err)
 	if err != nil {
 		return err
@@ -45,13 +45,13 @@ func (self *MysqlDB) TxRollback() error {
 	}
 }
 
-func (self *MysqlDB) txExec(query string, qtype int, args ...interface{}) (int64, error) {
-	if self.tx == nil {
+func (mdb *MysqlDB) txExec(query string, qtype int, args ...interface{}) (int64, error) {
+	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
 		printErrors(err)
 		return 0, err
 	}
-	rs, err := self.tx.Exec(query, args...)
+	rs, err := mdb.tx.Exec(query, args...)
 	printErrors(err)
 	if err != nil {
 		return 0, err
@@ -63,17 +63,17 @@ func (self *MysqlDB) txExec(query string, qtype int, args ...interface{}) (int64
 	} else if qtype == update {
 		result, err2 = rs.RowsAffected()
 	}
-	self.fieldlist = nil
+	mdb.fieldlist = nil
 	printErrors(err2)
 	return result, err2
 }
 
-func (self *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (int64, error) {
-	if self.tx == nil {
+func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (int64, error) {
+	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
 		return 0, err
 	}
-	stmt, err := self.tx.Prepare(query)
+	stmt, err := mdb.tx.Prepare(query)
 	if err != nil {
 		return 0, err
 	}
@@ -93,29 +93,29 @@ func (self *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (i
 	return result, err2
 }
 
-func (self *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int64, error) {
+func (mdb *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int64, error) {
 	lastQuery = query
 	if qtype == Statement {
-		return self.stmtTxExec(query, update, args...)
+		return mdb.stmtTxExec(query, update, args...)
 	} else {
-		return self.txExec(query, update, args...)
+		return mdb.txExec(query, update, args...)
 	}
 }
 
-func (self *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int64, error) {
+func (mdb *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int64, error) {
 	lastQuery = query
 	if qtype == Statement {
-		return self.stmtTxExec(query, insert, args...)
+		return mdb.stmtTxExec(query, insert, args...)
 	} else {
-		return self.txExec(query, insert, args...)
+		return mdb.txExec(query, insert, args...)
 	}
 }
 
-func (self *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int64, error) {
+func (mdb *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int64, error) {
 	lastQuery = query
 	if qtype == Statement {
-		return self.stmtTxExec(query, delete, args...)
+		return mdb.stmtTxExec(query, delete, args...)
 	} else {
-		return self.txExec(query, delete, args...)
+		return mdb.txExec(query, delete, args...)
 	}
 }

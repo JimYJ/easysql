@@ -9,12 +9,12 @@ import (
 )
 
 var (
-	Statement     int      = 1
-	Normal        int      = 0
-	insert        int      = 0
-	update        int      = 1
-	delete        int      = 2
-	charset       string   = "utf8"
+	Statement              = 1
+	Normal                 = 0
+	insert                 = 0
+	update                 = 1
+	delete                 = 2
+	charset                = "utf8"
 	customColumns []string = nil
 	mysqldb       *MysqlDB
 	once          sync.Once
@@ -28,16 +28,16 @@ var (
 	maxIdleConns  int
 	maxOpenConns  int
 	lastQuery     string
-	showErrors    bool = true
+	showErrors    = true
 )
 
 var (
-	errorInit     string = "DB param is not initialize!"
-	errorSetField string = "Field List is Error!"
-	errorTxInit   string = "Transaction didn't initializtion!"
+	errorInit     = "DB param is not initialize!"
+	errorSetField = "Field List is Error!"
+	errorTxInit   = "Transaction didn't initializtion!"
 )
 
-func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MysqlDBcharset string, MaxIdleConns int, MaxOpenConns int) {
+func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName, MysqlDBuser, MysqlDBpass, MysqlDBcharset string, MaxIdleConns, MaxOpenConns int) {
 	dBHost = MysqlDBHost
 	dBPort = MysqlDBPort
 	dBName = MysqlDBName
@@ -80,6 +80,7 @@ func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, Mysql
 	return mysqldb, err
 }
 
+//MysqlDB include mysqldb all params
 type MysqlDB struct {
 	host, user, dbname, pass, charset string
 	port                              int
@@ -88,13 +89,13 @@ type MysqlDB struct {
 	tx                                *sql.Tx
 }
 
-func (self *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
-	if self.host == "" || self.pass == "" || self.user == "" || self.dbname == "" {
+func (mdb *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
+	if mdb.host == "" || mdb.pass == "" || mdb.user == "" || mdb.dbname == "" {
 		errs := errors.New(errorInit)
 		printErrors(errs)
 		return errs
 	}
-	lastQuery = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s", self.user, self.pass, self.host, self.port, self.dbname, self.charset)
+	lastQuery = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s", mdb.user, mdb.pass, mdb.host, mdb.port, mdb.dbname, mdb.charset)
 	db, err := sql.Open("mysql", lastQuery)
 	if err != nil {
 		printErrors(err)
@@ -107,14 +108,14 @@ func (self *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
 		printErrors(err2)
 		return err2
 	}
-	self.dbConn = db
+	mdb.dbConn = db
 	return nil
 }
 
-func (self *MysqlDB) Close() {
-	self.dbConn.Close()
+func (mdb *MysqlDB) Close() {
+	mdb.dbConn.Close()
 }
 
-func (self *MysqlDB) SetFields(fieldlist []string) {
-	self.fieldlist = fieldlist
+func (mdb *MysqlDB) SetFields(fieldlist []string) {
+	mdb.fieldlist = fieldlist
 }

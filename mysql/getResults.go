@@ -4,17 +4,17 @@ import (
 	"errors"
 )
 
-func (self *MysqlDB) GetResults(qtype int, query string, param ...interface{}) ([]map[string]string, error) {
+func (mdb *MysqlDB) GetResults(qtype int, query string, param ...interface{}) ([]map[string]string, error) {
 	lastQuery = query
 	if qtype == Statement {
-		return self.stmtQuery(query, param...)
+		return mdb.stmtQuery(query, param...)
 	} else {
-		return self.query(query)
+		return mdb.query(query)
 	}
 }
 
-func (self *MysqlDB) query(query string) ([]map[string]string, error) {
-	rows, err := self.dbConn.Query(query)
+func (mdb *MysqlDB) query(query string) ([]map[string]string, error) {
+	rows, err := mdb.dbConn.Query(query)
 	printErrors(err)
 	if err != nil {
 		return nil, err
@@ -26,16 +26,16 @@ func (self *MysqlDB) query(query string) ([]map[string]string, error) {
 		return nil, err
 	}
 	/* check custom field*/
-	if self.fieldlist != nil && len(columns) != len(self.fieldlist) {
+	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
 		errs := errors.New(errorSetField)
 		printErrors(errs)
 		return nil, errs
 	}
 	var clos []string
-	if self.fieldlist == nil {
+	if mdb.fieldlist == nil {
 		clos = columns
 	} else {
-		clos = self.fieldlist
+		clos = mdb.fieldlist
 	}
 	/* check custom field end*/
 	columnName := make([]string, len(columns))
@@ -53,12 +53,12 @@ func (self *MysqlDB) query(query string) ([]map[string]string, error) {
 		}
 		result = append(result, rowData)
 	}
-	self.fieldlist = nil
+	mdb.fieldlist = nil
 	return result, nil
 }
 
-func (self *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]string, error) {
-	stmt, err := self.dbConn.Prepare(query)
+func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]string, error) {
+	stmt, err := mdb.dbConn.Prepare(query)
 	printErrors(err)
 	if err != nil {
 		return nil, err
@@ -75,14 +75,14 @@ func (self *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string
 		return nil, err
 	}
 	/* check custom field*/
-	if self.fieldlist != nil && len(columns) != len(self.fieldlist) {
+	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
 		return nil, errors.New(errorSetField)
 	}
 	var clos []string
-	if self.fieldlist == nil {
+	if mdb.fieldlist == nil {
 		clos = columns
 	} else {
-		clos = self.fieldlist
+		clos = mdb.fieldlist
 	}
 	/* check custom field end*/
 	columnName := make([]string, len(columns))
@@ -100,6 +100,6 @@ func (self *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string
 		}
 		result = append(result, rowData)
 	}
-	self.fieldlist = nil
+	mdb.fieldlist = nil
 	return result, nil
 }

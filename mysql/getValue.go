@@ -1,15 +1,15 @@
 package mysql
 
-func (self *MysqlDB) getVal(query string) (string, error) {
-	row := self.dbConn.QueryRow(query)
+func (mdb *MysqlDB) getVal(query string) (string, error) {
+	row := mdb.dbConn.QueryRow(query)
 	var str string
 	err := row.Scan(&str)
 	printErrors(err)
 	return str, err
 }
 
-func (self *MysqlDB) getValByStmt(query string, param ...interface{}) (string, error) {
-	stmt, err := self.dbConn.Prepare(query)
+func (mdb *MysqlDB) getValByStmt(query string, param ...interface{}) (string, error) {
+	stmt, err := mdb.dbConn.Prepare(query)
 	printErrors(err)
 	if err != nil {
 		return "", nil
@@ -22,11 +22,11 @@ func (self *MysqlDB) getValByStmt(query string, param ...interface{}) (string, e
 	return str, err2
 }
 
-func (self *MysqlDB) GetVal(qtype int, query string, param ...interface{}) (string, error) {
+func (mdb *MysqlDB) GetVal(qtype int, query string, param ...interface{}) (string, error) {
 	lastQuery = query
 	if qtype == Statement {
-		return self.getValByStmt(query, param...)
+		return mdb.getValByStmt(query, param...)
 	} else {
-		return self.getVal(query)
+		return mdb.getVal(query)
 	}
 }
