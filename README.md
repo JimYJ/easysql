@@ -4,7 +4,7 @@
 
 easysql encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
 
-## what's up:
+## what's new:
 1.2 add cache mode<br>
 1.1 add debug mode and debug func<br>
 1.0 finish all base func<br>
