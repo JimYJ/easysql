@@ -4,13 +4,25 @@ import (
 	"errors"
 )
 
+//GetRow get single row data
 func (mdb *MysqlDB) GetRow(qtype int, query string, param ...interface{}) (map[string]string, error) {
-	lastQuery = query
-	if qtype == Statement {
-		return mdb.stmtQueryRow(query, param...)
-	} else {
-		return mdb.queryRow(query)
+	lastQuery = getQuery(query, param)
+	var rs map[string]string
+	var err error
+	if cacheMode {
+		value, found := checkCache()
+		if found {
+			return value.(map[string]string), nil
+		}
 	}
+	if qtype == Statement {
+		rs, err = mdb.stmtQueryRow(query, param...)
+		setCache(rs)
+		return rs, err
+	}
+	rs, err = mdb.queryRow(query)
+	setCache(rs)
+	return rs, err
 }
 
 func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {

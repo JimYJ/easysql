@@ -25,16 +25,31 @@ import "github.com/JimYJ/easysql/mysql"
 
 **conn db:**
 ```go
-mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", MaxIdleConns, MaxOpenConns)
 mysqldb, err := mysql.Getmysqldb()//singleton pattern
 or
-mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", MaxIdleConns, MaxOpenConns)
 ```
 
 **close conn:**
 ```go
 mysqldb.Close()
 ```
+**use cache:**
+```go
+mysql.UseCache()
+```
+
+**close cache:**
+```go
+mysql.CloseCache()
+```
+
+**set cache timeout**
+```go
+mysql.SetCacheTimeout(5 * time.Second)
+```
+
 
 **get value:**
 

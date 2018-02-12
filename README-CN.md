@@ -25,15 +25,29 @@ import "github.com/JimYJ/easysql/mysql"
 **连接数据库:** 
 Init()只需要初始化一次，Getmysqldb()为并发安全的单例模式，可以多次调用，推荐使用，考虑到多数据库的连接，Newmysqldb()没有做保护，请谨慎调用，建议再封装一层
 ```go
-mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", MaxIdleConns, MaxOpenConns)//数据库ip，端口，数据库名，用户，密码，最大空闲数，最大连接数
 mysqldb, err := mysql.Getmysqldb()//singleton pattern
 or
-mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
+mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", MaxIdleConns, MaxOpenConns)
 ```
 
 **关闭连接:**
 ```go
 mysqldb.Close()
+```
+**启用缓存:**
+```go
+mysql.UseCache()
+```
+
+**关闭缓存:**
+```go
+mysql.CloseCache()
+```
+
+**设置缓存失效时间**
+```go
+mysql.SetCacheTimeout(5 * time.Second)
 ```
 
 **获取值:**

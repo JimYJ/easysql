@@ -4,20 +4,21 @@ import (
 	"errors"
 )
 
+//TxBegin transaction begin
 func (mdb *MysqlDB) TxBegin() error {
 	var err error
 	mdb.tx, err = mdb.dbConn.Begin()
 	printErrors(err)
 	if err != nil {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
+//TxCommit transaction commit
 func (mdb *MysqlDB) TxCommit() error {
 	if mdb.tx == nil {
-		err := errors.New("Transaction didn't initializtion!")
+		err := errors.New(errorTxInit)
 		printErrors(err)
 		return err
 	}
@@ -25,11 +26,11 @@ func (mdb *MysqlDB) TxCommit() error {
 	printErrors(err)
 	if err != nil {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
+//TxRollback transaction rollback
 func (mdb *MysqlDB) TxRollback() error {
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -40,9 +41,8 @@ func (mdb *MysqlDB) TxRollback() error {
 	printErrors(err)
 	if err != nil {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (mdb *MysqlDB) txExec(query string, qtype int, args ...interface{}) (int64, error) {
@@ -93,29 +93,29 @@ func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (in
 	return result, err2
 }
 
+//TxUpdate Update operation
 func (mdb *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = query
+	lastQuery = getQuery(query, args)
 	if qtype == Statement {
 		return mdb.stmtTxExec(query, update, args...)
-	} else {
-		return mdb.txExec(query, update, args...)
 	}
+	return mdb.txExec(query, update, args...)
 }
 
+//TxInsert Insert operation
 func (mdb *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = query
+	lastQuery = getQuery(query, args)
 	if qtype == Statement {
 		return mdb.stmtTxExec(query, insert, args...)
-	} else {
-		return mdb.txExec(query, insert, args...)
 	}
+	return mdb.txExec(query, insert, args...)
 }
 
+//TxDelete Delete operation
 func (mdb *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = query
+	lastQuery = getQuery(query, args)
 	if qtype == Statement {
 		return mdb.stmtTxExec(query, delete, args...)
-	} else {
-		return mdb.txExec(query, delete, args...)
 	}
+	return mdb.txExec(query, delete, args...)
 }

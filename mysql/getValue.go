@@ -22,11 +22,21 @@ func (mdb *MysqlDB) getValByStmt(query string, param ...interface{}) (string, er
 	return str, err2
 }
 
+//GetVal get single value
 func (mdb *MysqlDB) GetVal(qtype int, query string, param ...interface{}) (string, error) {
-	lastQuery = query
-	if qtype == Statement {
-		return mdb.getValByStmt(query, param...)
-	} else {
-		return mdb.getVal(query)
+	lastQuery = getQuery(query, param)
+	var rs string
+	var err error
+	value, found := checkCache()
+	if found {
+		return value.(string), nil
 	}
+	if qtype == Statement {
+		rs, err = mdb.getValByStmt(query, param...)
+		setCache(rs)
+		return rs, err
+	}
+	rs, err = mdb.getVal(query)
+	setCache(rs)
+	return rs, err
 }

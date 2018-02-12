@@ -6,37 +6,44 @@ import (
 	"fmt"
 	_ "github.com/Go-SQL-Driver/MySQL"
 	"sync"
+	"time"
 )
 
 var (
-	Statement              = 1
-	Normal                 = 0
-	insert                 = 0
-	update                 = 1
-	delete                 = 2
-	charset                = "utf8"
-	customColumns []string = nil
-	mysqldb       *MysqlDB
-	once          sync.Once
-	dBHost        string
-	dBPort        int
-	dBName        string
-	dBuser        string
-	dBpass        string
-	dbcharset     string
-	isinit        bool
-	maxIdleConns  int
-	maxOpenConns  int
-	lastQuery     string
-	showErrors    = true
+	//Statement mode
+	Statement = 1
+	//Normal mode
+	Normal            = 0
+	insert            = 0
+	update            = 1
+	delete            = 2
+	charset           = "utf8"
+	customColumns     []string
+	mysqldb           *MysqlDB
+	once              sync.Once
+	dBHost            string
+	dBPort            int
+	dBName            string
+	dBuser            string
+	dBpass            string
+	dbcharset         string
+	isinit            bool
+	maxIdleConns      int
+	maxOpenConns      int
+	lastQuery         string
+	showErrors        = true
+	cacheTimeout      = 5 * time.Second
+	cacheMode         = false
+	checkCacheTimeOut = 10 * time.Minute
 )
 
 var (
-	errorInit     = "DB param is not initialize!"
-	errorSetField = "Field List is Error!"
-	errorTxInit   = "Transaction didn't initializtion!"
+	errorInit     = "DB param is not initialize"
+	errorSetField = "Field List is Error"
+	errorTxInit   = "Transaction didn't initializtion"
 )
 
+//Init db params
 func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName, MysqlDBuser, MysqlDBpass, MysqlDBcharset string, MaxIdleConns, MaxOpenConns int) {
 	dBHost = MysqlDBHost
 	dBPort = MysqlDBPort
@@ -53,6 +60,7 @@ func Init(MysqlDBHost string, MysqlDBPort int, MysqlDBName, MysqlDBuser, MysqlDB
 	}
 }
 
+//GetMysqlConn create or get a database connection with singleton mode
 func GetMysqlConn() (*MysqlDB, error) {
 	if isinit == false {
 		return nil, errors.New(errorInit)
@@ -60,12 +68,13 @@ func GetMysqlConn() (*MysqlDB, error) {
 	var err error
 	once.Do(func() {
 		mysqldb = &MysqlDB{dBHost, dBuser, dBName, dBpass, dbcharset, dBPort, nil, nil, nil}
-		err = mysqldb.Conn(maxIdleConns, maxOpenConns)
+		err = mysqldb.conn(maxIdleConns, maxOpenConns)
 		printErrors(err)
 	})
 	return mysqldb, err
 }
 
+//NewMysqlConn create a database connection
 func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, MysqlDBuser string, MysqlDBpass string, MysqlDBcharset string, MaxIdleConns int, MaxOpenConns int) (*MysqlDB, error) {
 	var err error
 	var DBcharset string
@@ -75,7 +84,7 @@ func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, Mysql
 		DBcharset = MysqlDBcharset
 	}
 	mysqldb = &MysqlDB{MysqlDBHost, MysqlDBuser, MysqlDBName, MysqlDBpass, DBcharset, MysqlDBPort, nil, nil, nil}
-	err = mysqldb.Conn(MaxIdleConns, MaxOpenConns)
+	err = mysqldb.conn(MaxIdleConns, MaxOpenConns)
 	printErrors(err)
 	return mysqldb, err
 }
@@ -89,7 +98,7 @@ type MysqlDB struct {
 	tx                                *sql.Tx
 }
 
-func (mdb *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
+func (mdb *MysqlDB) conn(MaxIdleConns int, MaxOpenConns int) error {
 	if mdb.host == "" || mdb.pass == "" || mdb.user == "" || mdb.dbname == "" {
 		errs := errors.New(errorInit)
 		printErrors(errs)
@@ -112,10 +121,12 @@ func (mdb *MysqlDB) Conn(MaxIdleConns int, MaxOpenConns int) error {
 	return nil
 }
 
+//Close close db conn
 func (mdb *MysqlDB) Close() {
 	mdb.dbConn.Close()
 }
 
+//SetFields  set field name
 func (mdb *MysqlDB) SetFields(fieldlist []string) {
 	mdb.fieldlist = fieldlist
 }

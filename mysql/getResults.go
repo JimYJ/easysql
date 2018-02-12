@@ -4,13 +4,25 @@ import (
 	"errors"
 )
 
+//GetResults get multiple rows data
 func (mdb *MysqlDB) GetResults(qtype int, query string, param ...interface{}) ([]map[string]string, error) {
-	lastQuery = query
-	if qtype == Statement {
-		return mdb.stmtQuery(query, param...)
-	} else {
-		return mdb.query(query)
+	lastQuery = getQuery(query, param)
+	var rs []map[string]string
+	var err error
+	if cacheMode {
+		value, found := checkCache()
+		if found {
+			return value.([]map[string]string), nil
+		}
 	}
+	if qtype == Statement {
+		rs, err = mdb.stmtQuery(query, param...)
+		setCache(rs)
+		return rs, err
+	}
+	rs, err = mdb.query(query)
+	setCache(rs)
+	return rs, err
 }
 
 func (mdb *MysqlDB) query(query string) ([]map[string]string, error) {
