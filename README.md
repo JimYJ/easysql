@@ -4,6 +4,11 @@
 
 easysql encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
 
+## what's up:
+1.2 add cache mode
+1.1 add debug mode and debug func
+1.0 finish all base func
+
 # How to get
 
 ```

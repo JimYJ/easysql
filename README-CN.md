@@ -3,6 +3,12 @@
 [English](https://github.com/JimYJ/easysql/blob/master/README.md) 
 
 easysql 封装了数据库操作，简化了数据库的使用，目前已支持Mysql，今后将会支持更多数据库
+
+## 更新:
+1.2 增加缓存功能，应对高并发请求下的重复请求
+1.1 增加debug模式和debug的功能
+1.0 完成基础功能
+
 # 获取和安装
 
 ```
