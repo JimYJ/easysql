@@ -159,18 +159,18 @@ mysql.Debug()
 
 **print all errors**
 ```go
-mysql.ShowErrors()
+mysql.DebugMode()
 mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 mysqldb, err := mysql.Getmysqldb()
 ...
 or
-mysql.ShowErrors()
+mysql.DebugMode()
 mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 ```
 
 **hide all errors**
 ```go
-mysql.HideErrors()
+mysql.ReleaseMode()
 ```
 
 

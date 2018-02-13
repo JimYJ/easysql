@@ -161,18 +161,18 @@ mysql.Debug()
 
 **打印所有错误信息**
 ```go
-mysql.ShowErrors()
+mysql.DebugMode()
 mysql.Init("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 mysqldb, err := mysql.Getmysqldb()
 ...
 or
-mysql.ShowErrors()
+mysql.DebugMode()
 mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", 100, 100)
 ```
 
 **关闭打印错误信息**
 ```go
-mysql.HideErrors()
+mysql.ReleaseMode()
 ```
 
 
