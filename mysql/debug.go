@@ -29,11 +29,13 @@ func ReleaseMode() {
 //UseCache use cache mode
 func UseCache() {
 	cacheMode = true
+	caches = cache.New(cacheTimeout, checkCacheTimeOut)
 }
 
 //OffCache turn off cache mode
 func CloseCache() {
 	cacheMode = false
+	caches = nil
 }
 
 //SetCacheTimeout set cache timeout
@@ -64,8 +66,7 @@ func hashsha1(data string) string {
 func checkCache() (interface{}, bool) {
 	if cacheMode {
 		key := hashsha1(lastQuery)
-		c := cache.New(cacheTimeout, checkCacheTimeOut)
-		value, found := c.Get(key)
+		value, found := caches.Get(key)
 		if found {
 			return value, true
 		}
@@ -76,7 +77,6 @@ func checkCache() (interface{}, bool) {
 func setCache(value interface{}) {
 	if cacheMode {
 		key := hashsha1(lastQuery)
-		c := cache.New(cacheTimeout, checkCacheTimeOut)
-		c.Set(key, value, cacheTimeout)
+		caches.Set(key, value, cacheTimeout)
 	}
 }

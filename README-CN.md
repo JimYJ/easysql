@@ -41,6 +41,11 @@ mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", Max
 ```go
 mysqldb.Close()
 ```
+
+**设置缓存失效时间**
+```go
+mysql.SetCacheTimeout(5 * time.Second)//默认超时时间为5秒，设置缓存超时必须在开启缓存之前，不然设置的时间不会生效
+```
 **启用缓存:**
 ```go
 mysql.UseCache()
@@ -51,10 +56,7 @@ mysql.UseCache()
 mysql.CloseCache()
 ```
 
-**设置缓存失效时间**
-```go
-mysql.SetCacheTimeout(5 * time.Second)
-```
+
 
 **获取值:**
 ```go

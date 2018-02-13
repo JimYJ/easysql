@@ -40,6 +40,11 @@ mysqldb, err := mysql.Newmysqldb("127.0.0.1", 3306, "dbname", "root", "123", Max
 ```go
 mysqldb.Close()
 ```
+
+**set cache timeout**
+```go
+mysql.SetCacheTimeout(5 * time.Second)//default 5s. if want to set cache timeout,must before trun on cache else you set timeout is no work
+```
 **use cache:**
 ```go
 mysql.UseCache()
@@ -48,11 +53,6 @@ mysql.UseCache()
 **close cache:**
 ```go
 mysql.CloseCache()
-```
-
-**set cache timeout**
-```go
-mysql.SetCacheTimeout(5 * time.Second)
 ```
 
 

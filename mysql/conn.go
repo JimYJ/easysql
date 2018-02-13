@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/Go-SQL-Driver/MySQL"
+	"github.com/patrickmn/go-cache"
 	"sync"
 	"time"
 )
@@ -35,6 +36,7 @@ var (
 	cacheTimeout      = 5 * time.Second
 	cacheMode         = false
 	checkCacheTimeOut = 10 * time.Minute
+	caches            *cache.Cache
 )
 
 var (
