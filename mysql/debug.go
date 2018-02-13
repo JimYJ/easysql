@@ -68,11 +68,7 @@ func hashsha1(data string) string {
 func checkCache() (interface{}, bool) {
 	if cacheMode {
 		key := hashsha1(lastQuery)
-		value, found := caches.Get(key)
-		if found {
-			return value, true
-		}
-		return nil, false
+		return caches.Get(key)
 	}
 	return nil, false
 }
