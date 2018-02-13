@@ -29,13 +29,15 @@ func ReleaseMode() {
 //UseCache use cache mode
 func UseCache() {
 	cacheMode = true
-	caches = cache.New(cacheTimeout, checkCacheTimeOut)
+	once.Do(func() {
+		caches = cache.New(cacheTimeout, checkCacheTimeOut)
+	})
 }
 
 //OffCache turn off cache mode
 func CloseCache() {
 	cacheMode = false
-	caches = nil
+	// caches = nil
 }
 
 //SetCacheTimeout set cache timeout
