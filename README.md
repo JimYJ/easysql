@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/JimYJ/easysql.svg?branch=master)](https://travis-ci.org/JimYJ/easysql)
+[![Go Report Card](https://goreportcard.com/badge/github.com/JimYJ/easysql)](https://goreportcard.com/report/github.com/JimYJ/easysql)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/ugorji/go/master/LICENSE)
 [中文说明](https://github.com/JimYJ/easysql/blob/master/README-CN.md) 
 
