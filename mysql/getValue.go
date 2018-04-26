@@ -24,7 +24,7 @@ func (mdb *MysqlDB) getValByStmt(query string, param ...interface{}) (string, er
 
 //GetVal get single value
 func (mdb *MysqlDB) GetVal(qtype int, query string, param ...interface{}) (string, error) {
-	lastQuery = getQuery(query, param)
+	lastQuery = getQuery(query, param...)
 	var rs string
 	var err error
 	value, found := checkCache()

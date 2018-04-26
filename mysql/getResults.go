@@ -6,7 +6,7 @@ import (
 
 //GetResults get multiple rows data
 func (mdb *MysqlDB) GetResults(qtype int, query string, param ...interface{}) ([]map[string]string, error) {
-	lastQuery = getQuery(query, param)
+	lastQuery = getQuery(query, param...)
 	var rs []map[string]string
 	var err error
 	if cacheMode {

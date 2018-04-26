@@ -6,7 +6,7 @@ import (
 
 //GetRow get single row data
 func (mdb *MysqlDB) GetRow(qtype int, query string, param ...interface{}) (map[string]string, error) {
-	lastQuery = getQuery(query, param)
+	lastQuery = getQuery(query, param...)
 	var rs map[string]string
 	var err error
 	if cacheMode {

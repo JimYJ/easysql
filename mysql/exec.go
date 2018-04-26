@@ -42,7 +42,7 @@ func (mdb *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int6
 
 //Update operation ,return rows affected
 func (mdb *MysqlDB) Update(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = getQuery(query, args)
+	lastQuery = getQuery(query, args...)
 	if qtype == Statement {
 		return mdb.stmtExec(query, update, args...)
 	}
@@ -51,7 +51,7 @@ func (mdb *MysqlDB) Update(qtype int, query string, args ...interface{}) (int64,
 
 //Insert operation ,return new insert id
 func (mdb *MysqlDB) Insert(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = getQuery(query, args)
+	lastQuery = getQuery(query, args...)
 	if qtype == Statement {
 		return mdb.stmtExec(query, insert, args...)
 	}
@@ -60,7 +60,7 @@ func (mdb *MysqlDB) Insert(qtype int, query string, args ...interface{}) (int64,
 
 //Delete operation ,return rows affected
 func (mdb *MysqlDB) Delete(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = getQuery(query, args)
+	lastQuery = getQuery(query, args...)
 	if qtype == Statement {
 		return mdb.stmtExec(query, delete, args...)
 	}

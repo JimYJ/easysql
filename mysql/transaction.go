@@ -95,7 +95,7 @@ func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (in
 
 //TxUpdate Update operation
 func (mdb *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = getQuery(query, args)
+	lastQuery = getQuery(query, args...)
 	if qtype == Statement {
 		return mdb.stmtTxExec(query, update, args...)
 	}
@@ -104,7 +104,7 @@ func (mdb *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int6
 
 //TxInsert Insert operation
 func (mdb *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = getQuery(query, args)
+	lastQuery = getQuery(query, args...)
 	if qtype == Statement {
 		return mdb.stmtTxExec(query, insert, args...)
 	}
@@ -113,7 +113,7 @@ func (mdb *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int6
 
 //TxDelete Delete operation
 func (mdb *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int64, error) {
-	lastQuery = getQuery(query, args)
+	lastQuery = getQuery(query, args...)
 	if qtype == Statement {
 		return mdb.stmtTxExec(query, delete, args...)
 	}
