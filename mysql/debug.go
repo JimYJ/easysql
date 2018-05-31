@@ -87,8 +87,7 @@ func anyToString(m interface{}) string {
 	case int64:
 		return strconv.FormatInt(m.(int64), 10)
 	default:
-
+		return ""
 		//处理业务
-
 	}
 }
