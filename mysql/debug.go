@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/patrickmn/go-cache"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -74,5 +75,20 @@ func setCache(value interface{}) {
 	if cacheMode {
 		key := hashsha1(lastQuery)
 		caches.Set(key, value, cacheTimeout)
+	}
+}
+
+func anyToString(m interface{}) string {
+	switch m.(type) {
+	case string:
+		return m.(string)
+	case int:
+		return strconv.Itoa(m.(int))
+	case int64:
+		return strconv.FormatInt(m.(int64), 10)
+	default:
+
+		//处理业务
+
 	}
 }

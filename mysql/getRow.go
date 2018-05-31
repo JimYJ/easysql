@@ -61,7 +61,7 @@ func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {
 		printErrors(err)
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = column.(string)
+				rowData[clos[k]] = anyToString(column)
 			} else {
 				rowData[clos[k]] = ""
 			}

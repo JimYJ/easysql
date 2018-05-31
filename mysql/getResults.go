@@ -109,7 +109,7 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 		rowData := make(map[string]string, len(columns))
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = column.(string)
+				rowData[clos[k]] = anyToString(column)
 			} else {
 				rowData[clos[k]] = ""
 			}
