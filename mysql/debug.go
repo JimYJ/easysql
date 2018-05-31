@@ -87,7 +87,7 @@ func anyToString(m interface{}) string {
 	case int64:
 		return strconv.FormatInt(m.(int64), 10)
 	case []uint8:
-		return fmt.Sprintf("%v", m.([]uint8))
+		return string(m.([]uint8))
 
 	default:
 		return ""
