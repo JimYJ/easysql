@@ -50,7 +50,7 @@ func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {
 		clos = mdb.fieldlist
 	}
 	/* check custom field end*/
-	columnName := make([]string, len(columns))
+	columnName := make([]interface{}, len(columns))
 	colbuff := make([]interface{}, len(columns))
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
@@ -60,7 +60,12 @@ func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
 		for k, column := range columnName {
-			rowData[clos[k]] = string(column)
+			if column != nil {
+				rowData[clos[k]] = column.(string)
+			} else {
+				rowData[clos[k]] = ""
+			}
+
 		}
 		break
 	}

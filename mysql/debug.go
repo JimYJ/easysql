@@ -32,7 +32,7 @@ func UseCache() {
 	caches = cache.New(cacheTimeout, checkCacheTimeOut)
 }
 
-//OffCache turn off cache mode
+//CloseCache turn off cache mode
 func CloseCache() {
 	cacheMode = false
 	caches = nil

@@ -97,7 +97,7 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 		clos = mdb.fieldlist
 	}
 	/* check custom field end*/
-	columnName := make([]string, len(columns))
+	columnName := make([]interface{}, len(columns))
 	colbuff := make([]interface{}, len(columns))
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
@@ -108,7 +108,11 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 		printErrors(err)
 		rowData := make(map[string]string, len(columns))
 		for k, column := range columnName {
-			rowData[clos[k]] = string(column)
+			if column != nil {
+				rowData[clos[k]] = column.(string)
+			} else {
+				rowData[clos[k]] = ""
+			}
 		}
 		result = append(result, rowData)
 	}
