@@ -29,9 +29,9 @@ func (mdb *MysqlDB) TxBegin() error {
 // LevelLinearizable 可线性化
 func (mdb *MysqlDB) TxBeginWithIsol(isolLevel sql.IsolationLevel, readOnly bool) error {
 	var err error
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Millisecond)
-	defer cancel()
-	mdb.tx, err = mdb.dbConn.BeginTx(ctx, &sql.TxOptions{
+	// ctx, cancel := context.WithTimeout(context.Background(), 15*time.Millisecond)
+	// defer cancel()
+	mdb.tx, err = mdb.dbConn.BeginTx(context.Background(), &sql.TxOptions{
 		Isolation: isolLevel,
 		ReadOnly:  readOnly,
 	})
