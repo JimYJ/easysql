@@ -27,11 +27,14 @@ func (mdb *MysqlDB) TxBegin() error {
 // LevelSnapshot 可读快照
 // LevelSerializable 可串行化
 // LevelLinearizable 可线性化
-func (mdb *MysqlDB) TxBeginWithIsol(opts *sql.TxOptions) error {
+func (mdb *MysqlDB) TxBeginWithIsol(isolLevel sql.IsolationLevel, readOnly bool) error {
 	var err error
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Millisecond)
 	defer cancel()
-	mdb.tx, err = mdb.dbConn.BeginTx(ctx, opts)
+	mdb.tx, err = mdb.dbConn.BeginTx(ctx, &sql.TxOptions{
+		Isolation: isolLevel,
+		ReadOnly:  readOnly,
+	})
 	printErrors(err)
 	if err != nil {
 		return err
