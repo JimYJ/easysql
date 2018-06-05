@@ -145,3 +145,134 @@ func (mdb *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int6
 	}
 	return mdb.txExec(query, delete, args...)
 }
+
+// TxGetVal get single value by transaction
+func (mdb *MysqlDB) TxGetVal(query string, qtype int, args ...interface{}) (string, error) {
+	lastQuery = getQuery(query, args...)
+	if mdb.tx == nil {
+		err := errors.New(errorTxInit)
+		return "", err
+	}
+	stmt, err := mdb.tx.Prepare(query)
+	if err != nil {
+		return "", err
+	}
+	var err2 error
+	printErrors(err2)
+	row := stmt.QueryRow(args...)
+	var str string
+	err2 = row.Scan(&str)
+	return str, err2
+}
+
+// TxGetRow get single row data by transaction
+func (mdb *MysqlDB) TxGetRow(query string, qtype int, args ...interface{}) (map[string]string, error) {
+	lastQuery = getQuery(query, args...)
+	if mdb.tx == nil {
+		err := errors.New(errorTxInit)
+		return nil, err
+	}
+	stmt, err := mdb.tx.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		printErrors(err)
+		return nil, err
+	}
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+	/* check custom field*/
+	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
+		err := errors.New(errorSetField)
+		printErrors(err)
+		return nil, err
+	}
+	var clos []string
+	if mdb.fieldlist == nil {
+		clos = columns
+	} else {
+		clos = mdb.fieldlist
+	}
+	/* check custom field end*/
+	columnName := make([]interface{}, len(columns))
+	colbuff := make([]interface{}, len(columns))
+	for i := range colbuff {
+		colbuff[i] = &columnName[i]
+	}
+	rowData := make(map[string]string, len(columns))
+	for rows.Next() {
+		err := rows.Scan(colbuff...)
+		printErrors(err)
+		for k, column := range columnName {
+			if column != nil {
+				rowData[clos[k]] = anyToString(column)
+			} else {
+				rowData[clos[k]] = ""
+			}
+		}
+		break
+	}
+	mdb.fieldlist = nil
+	return rowData, nil
+}
+
+// TxGetResults get multiple rows data by transaction
+func (mdb *MysqlDB) TxGetResults(query string, qtype int, args ...interface{}) ([]map[string]string, error) {
+	lastQuery = getQuery(query, args...)
+	if mdb.tx == nil {
+		err := errors.New(errorTxInit)
+		return nil, err
+	}
+	stmt, err := mdb.tx.Prepare(query)
+	defer stmt.Close()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := stmt.Query(args...)
+	printErrors(err)
+	if err != nil {
+		return nil, err
+	}
+	columns, err := rows.Columns()
+	printErrors(err)
+	if err != nil {
+		return nil, err
+	}
+	/* check custom field*/
+	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
+		return nil, errors.New(errorSetField)
+	}
+	var clos []string
+	if mdb.fieldlist == nil {
+		clos = columns
+	} else {
+		clos = mdb.fieldlist
+	}
+	/* check custom field end*/
+	columnName := make([]interface{}, len(columns))
+	colbuff := make([]interface{}, len(columns))
+	for i := range colbuff {
+		colbuff[i] = &columnName[i]
+	}
+	var result []map[string]string
+	for rows.Next() {
+		err := rows.Scan(colbuff...)
+		printErrors(err)
+		rowData := make(map[string]string, len(columns))
+		for k, column := range columnName {
+			if column != nil {
+				rowData[clos[k]] = anyToString(column)
+			} else {
+				rowData[clos[k]] = ""
+			}
+		}
+		result = append(result, rowData)
+	}
+	mdb.fieldlist = nil
+	return result, nil
+}

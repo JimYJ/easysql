@@ -10,14 +10,17 @@ import (
 	"time"
 )
 
+const (
+	insert = iota
+	update
+	delete
+)
+
 var (
 	//Statement mode
 	Statement = 1
 	//Normal mode
 	Normal            = 0
-	insert            = 0
-	update            = 1
-	delete            = 2
 	charset           = "utf8"
 	customColumns     []string
 	mysqldb           *MysqlDB

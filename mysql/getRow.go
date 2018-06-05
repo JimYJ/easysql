@@ -75,11 +75,11 @@ func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {
 
 func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string]string, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
+	defer stmt.Close()
 	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
 	rows, err := stmt.Query(param...)
 	printErrors(err)
 	if err != nil {
@@ -102,7 +102,7 @@ func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string
 		clos = mdb.fieldlist
 	}
 	/* check custom field end*/
-	columnName := make([]string, len(columns))
+	columnName := make([]interface{}, len(columns))
 	colbuff := make([]interface{}, len(columns))
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
@@ -112,7 +112,11 @@ func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string
 		err := rows.Scan(colbuff...)
 		printErrors(err)
 		for k, column := range columnName {
-			rowData[clos[k]] = string(column)
+			if column != nil {
+				rowData[clos[k]] = anyToString(column)
+			} else {
+				rowData[clos[k]] = ""
+			}
 		}
 		break
 	}
