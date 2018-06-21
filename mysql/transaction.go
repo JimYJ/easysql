@@ -147,7 +147,7 @@ func (mdb *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int6
 }
 
 // TxGetVal get single value by transaction
-func (mdb *MysqlDB) TxGetVal(query string, qtype int, args ...interface{}) (string, error) {
+func (mdb *MysqlDB) TxGetVal(qtype int, query string, args ...interface{}) (string, error) {
 	lastQuery = getQuery(query, args...)
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -166,7 +166,7 @@ func (mdb *MysqlDB) TxGetVal(query string, qtype int, args ...interface{}) (stri
 }
 
 // TxGetRow get single row data by transaction
-func (mdb *MysqlDB) TxGetRow(query string, qtype int, args ...interface{}) (map[string]string, error) {
+func (mdb *MysqlDB) TxGetRow(qtype int, query string, args ...interface{}) (map[string]string, error) {
 	lastQuery = getQuery(query, args...)
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -222,7 +222,7 @@ func (mdb *MysqlDB) TxGetRow(query string, qtype int, args ...interface{}) (map[
 }
 
 // TxGetResults get multiple rows data by transaction
-func (mdb *MysqlDB) TxGetResults(query string, qtype int, args ...interface{}) ([]map[string]string, error) {
+func (mdb *MysqlDB) TxGetResults(qtype int, query string, args ...interface{}) ([]map[string]string, error) {
 	lastQuery = getQuery(query, args...)
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
