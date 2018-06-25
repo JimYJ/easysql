@@ -81,11 +81,11 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 		return nil, err
 	}
 	rows, err := stmt.Query(param...)
+	defer rows.Close()
 	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 	columns, err := rows.Columns()
 	printErrors(err)
 	if err != nil {

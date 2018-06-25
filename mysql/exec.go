@@ -26,6 +26,7 @@ func (mdb *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int6
 	}
 	rs, err := stmt.Exec(args...)
 	printErrors(err)
+	defer stmt.Close()
 	if err != nil {
 		return 0, err
 	}
