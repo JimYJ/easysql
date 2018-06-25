@@ -85,6 +85,7 @@ func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err

@@ -182,6 +182,7 @@ func (mdb *MysqlDB) TxGetRow(query string, qtype int, args ...interface{}) (map[
 		printErrors(err)
 		return nil, err
 	}
+	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -234,6 +235,7 @@ func (mdb *MysqlDB) TxGetResults(query string, qtype int, args ...interface{}) (
 		return nil, err
 	}
 	rows, err := stmt.Query(args...)
+	defer rows.Close()
 	printErrors(err)
 	if err != nil {
 		return nil, err
