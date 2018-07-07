@@ -24,9 +24,9 @@ func (mdb *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int6
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Close()
 	rs, err := stmt.Exec(args...)
 	printErrors(err)
-	defer stmt.Close()
 	if err != nil {
 		return 0, err
 	}

@@ -100,10 +100,10 @@ func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (in
 		return 0, err
 	}
 	stmt, err := mdb.tx.Prepare(query)
-	defer stmt.Close()
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Close()
 	rs, err := stmt.Exec(args...)
 	printErrors(err)
 	if err != nil {
@@ -174,16 +174,16 @@ func (mdb *MysqlDB) TxGetRow(qtype int, query string, args ...interface{}) (map[
 		return nil, err
 	}
 	stmt, err := mdb.tx.Prepare(query)
-	defer stmt.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 	rows, err := stmt.Query(args...)
-	defer rows.Close()
 	if err != nil {
 		printErrors(err)
 		return nil, err
 	}
+	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -231,16 +231,16 @@ func (mdb *MysqlDB) TxGetResults(qtype int, query string, args ...interface{}) (
 		return nil, err
 	}
 	stmt, err := mdb.tx.Prepare(query)
-	defer stmt.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 	rows, err := stmt.Query(args...)
-	defer rows.Close()
 	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	columns, err := rows.Columns()
 	printErrors(err)
 	if err != nil {

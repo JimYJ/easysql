@@ -75,17 +75,17 @@ func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {
 
 func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string]string, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
+	printErrors(err)
+	if err != nil {
+		return nil, err
+	}
 	defer stmt.Close()
-	printErrors(err)
-	if err != nil {
-		return nil, err
-	}
 	rows, err := stmt.Query(param...)
-	defer rows.Close()
 	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err
