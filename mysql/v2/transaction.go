@@ -71,29 +71,6 @@ func (mdb *MysqlDB) TxRollback() error {
 	return nil
 }
 
-func (mdb *MysqlDB) txExec(query string, qtype int, args ...interface{}) (int64, error) {
-	if mdb.tx == nil {
-		err := errors.New(errorTxInit)
-		printErrors(err)
-		return 0, err
-	}
-	rs, err := mdb.tx.Exec(query, args...)
-	printErrors(err)
-	if err != nil {
-		return 0, err
-	}
-	var result int64
-	var err2 error
-	if qtype == insert {
-		result, err2 = rs.LastInsertId()
-	} else if qtype == update {
-		result, err2 = rs.RowsAffected()
-	}
-	mdb.fieldlist = nil
-	printErrors(err2)
-	return result, err2
-}
-
 func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (int64, error) {
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -121,34 +98,25 @@ func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (in
 }
 
 //TxUpdate Update operation
-func (mdb *MysqlDB) TxUpdate(qtype int, query string, args ...interface{}) (int64, error) {
+func (mdb *MysqlDB) TxUpdate(query string, args ...interface{}) (int64, error) {
 	lastQuery = getQuery(query, args...)
-	if qtype == Statement {
-		return mdb.stmtTxExec(query, update, args...)
-	}
-	return mdb.txExec(query, update, args...)
+	return mdb.stmtTxExec(query, update, args...)
 }
 
 //TxInsert Insert operation
-func (mdb *MysqlDB) TxInsert(qtype int, query string, args ...interface{}) (int64, error) {
+func (mdb *MysqlDB) TxInsert(query string, args ...interface{}) (int64, error) {
 	lastQuery = getQuery(query, args...)
-	if qtype == Statement {
-		return mdb.stmtTxExec(query, insert, args...)
-	}
-	return mdb.txExec(query, insert, args...)
+	return mdb.stmtTxExec(query, insert, args...)
 }
 
 //TxDelete Delete operation
-func (mdb *MysqlDB) TxDelete(qtype int, query string, args ...interface{}) (int64, error) {
+func (mdb *MysqlDB) TxDelete(query string, args ...interface{}) (int64, error) {
 	lastQuery = getQuery(query, args...)
-	if qtype == Statement {
-		return mdb.stmtTxExec(query, delete, args...)
-	}
-	return mdb.txExec(query, delete, args...)
+	return mdb.stmtTxExec(query, delete, args...)
 }
 
 // TxGetVal get single value by transaction
-func (mdb *MysqlDB) TxGetVal(qtype int, query string, args ...interface{}) (string, error) {
+func (mdb *MysqlDB) TxGetVal(query string, args ...interface{}) (interface{}, error) {
 	lastQuery = getQuery(query, args...)
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -161,13 +129,13 @@ func (mdb *MysqlDB) TxGetVal(qtype int, query string, args ...interface{}) (stri
 	var err2 error
 	printErrors(err2)
 	row := stmt.QueryRow(args...)
-	var str string
-	err2 = row.Scan(&str)
-	return str, err2
+	var value interface{}
+	err2 = row.Scan(&value)
+	return value, err2
 }
 
 // TxGetRow get single row data by transaction
-func (mdb *MysqlDB) TxGetRow(qtype int, query string, args ...interface{}) (map[string]string, error) {
+func (mdb *MysqlDB) TxGetRow(query string, args ...interface{}) (map[string]interface{}, error) {
 	lastQuery = getQuery(query, args...)
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -206,15 +174,15 @@ func (mdb *MysqlDB) TxGetRow(qtype int, query string, args ...interface{}) (map[
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
 	}
-	rowData := make(map[string]string, len(columns))
+	rowData := make(map[string]interface{}, len(columns))
 	for rows.Next() {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = anyToString(column)
+				rowData[clos[k]] = column
 			} else {
-				rowData[clos[k]] = ""
+				rowData[clos[k]] = nil
 			}
 		}
 		break
@@ -224,7 +192,7 @@ func (mdb *MysqlDB) TxGetRow(qtype int, query string, args ...interface{}) (map[
 }
 
 // TxGetResults get multiple rows data by transaction
-func (mdb *MysqlDB) TxGetResults(qtype int, query string, args ...interface{}) ([]map[string]string, error) {
+func (mdb *MysqlDB) TxGetResults(query string, args ...interface{}) ([]map[string]interface{}, error) {
 	lastQuery = getQuery(query, args...)
 	if mdb.tx == nil {
 		err := errors.New(errorTxInit)
@@ -262,16 +230,16 @@ func (mdb *MysqlDB) TxGetResults(qtype int, query string, args ...interface{}) (
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
 	}
-	var result []map[string]string
+	var result []map[string]interface{}
 	for rows.Next() {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
-		rowData := make(map[string]string, len(columns))
+		rowData := make(map[string]interface{}, len(columns))
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = anyToString(column)
+				rowData[clos[k]] = column
 			} else {
-				rowData[clos[k]] = ""
+				rowData[clos[k]] = nil
 			}
 		}
 		result = append(result, rowData)

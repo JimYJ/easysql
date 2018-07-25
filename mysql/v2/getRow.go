@@ -5,75 +5,22 @@ import (
 )
 
 //GetRow get single row data
-func (mdb *MysqlDB) GetRow(qtype int, query string, param ...interface{}) (map[string]string, error) {
+func (mdb *MysqlDB) GetRow(query string, param ...interface{}) (map[string]interface{}, error) {
 	lastQuery = getQuery(query, param...)
-	var rs map[string]string
+	var rs map[string]interface{}
 	var err error
 	if cacheMode {
 		value, found := checkCache()
 		if found {
-			return value.(map[string]string), nil
+			return value.(map[string]interface{}), nil
 		}
 	}
-	if qtype == Statement {
-		rs, err = mdb.stmtQueryRow(query, param...)
-		setCache(rs)
-		return rs, err
-	}
-	rs, err = mdb.queryRow(query)
+	rs, err = mdb.stmtQueryRow(query, param...)
 	setCache(rs)
 	return rs, err
 }
 
-func (mdb *MysqlDB) queryRow(query string) (map[string]string, error) {
-	rows, err := mdb.dbConn.Query(query)
-	printErrors(err)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	columns, err := rows.Columns()
-	printErrors(err)
-	if err != nil {
-		return nil, err
-	}
-	/* check custom field*/
-	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
-		err := errors.New(errorSetField)
-		printErrors(err)
-		return nil, err
-	}
-	var clos []string
-	if mdb.fieldlist == nil {
-		clos = columns
-	} else {
-		clos = mdb.fieldlist
-	}
-	/* check custom field end*/
-	columnName := make([]interface{}, len(columns))
-	colbuff := make([]interface{}, len(columns))
-	for i := range colbuff {
-		colbuff[i] = &columnName[i]
-	}
-	rowData := make(map[string]string, len(columns))
-	for rows.Next() {
-		err := rows.Scan(colbuff...)
-		printErrors(err)
-		for k, column := range columnName {
-			if column != nil {
-				rowData[clos[k]] = anyToString(column)
-			} else {
-				rowData[clos[k]] = ""
-			}
-
-		}
-		break
-	}
-	mdb.fieldlist = nil
-	return rowData, nil
-}
-
-func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string]string, error) {
+func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string]interface{}, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
 	printErrors(err)
 	if err != nil {
@@ -108,15 +55,15 @@ func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
 	}
-	rowData := make(map[string]string, len(columns))
+	rowData := make(map[string]interface{}, len(columns))
 	for rows.Next() {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = anyToString(column)
+				rowData[clos[k]] = column
 			} else {
-				rowData[clos[k]] = ""
+				rowData[clos[k]] = nil
 			}
 		}
 		break
