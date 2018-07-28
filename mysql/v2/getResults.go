@@ -5,7 +5,7 @@ import (
 )
 
 //GetResults get multiple rows data
-func (mdb *MysqlDB) GetResults(qtype int, query string, param ...interface{}) ([]map[string]interface{}, error) {
+func (mdb *MysqlDB) GetResults(query string, param ...interface{}) ([]map[string]interface{}, error) {
 	lastQuery = getQuery(query, param...)
 	var rs []map[string]interface{}
 	var err error
@@ -61,7 +61,12 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 		rowData := make(map[string]interface{}, len(columns))
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = column
+				b, ok := column.([]byte)
+				if ok {
+					rowData[clos[k]] = string(b)
+				} else {
+					rowData[clos[k]] = column
+				}
 			} else {
 				rowData[clos[k]] = nil
 			}

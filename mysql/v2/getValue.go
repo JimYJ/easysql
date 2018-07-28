@@ -24,6 +24,10 @@ func (mdb *MysqlDB) GetVal(query string, param ...interface{}) (interface{}, err
 		return value, nil
 	}
 	value, err = mdb.getValByStmt(query, param...)
+	b, ok := value.([]byte)
+	if ok {
+		value = string(b)
+	}
 	setCache(value)
 	return value, err
 }

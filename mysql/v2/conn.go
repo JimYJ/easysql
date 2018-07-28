@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/Go-SQL-Driver/MySQL"
+	_ "github.com/Go-SQL-Driver/MySQL" //not use
 	"github.com/patrickmn/go-cache"
 	"log"
 	"sync"
@@ -73,7 +73,7 @@ func GetMysqlConn() (*MysqlDB, error) {
 	}
 	var err error
 	once.Do(func() {
-		mysqldb = &MysqlDB{dBHost, dBuser, dBName, dBpass, dbcharset, dBPort, nil, nil, nil}
+		mysqldb = &MysqlDB{dBHost, dBuser, dBName, dBpass, dbcharset, dBPort, nil, nil}
 		err = mysqldb.conn(maxIdleConns, maxOpenConns)
 		if err != nil {
 			log.Panicln(err)
@@ -91,7 +91,7 @@ func NewMysqlConn(MysqlDBHost string, MysqlDBPort int, MysqlDBName string, Mysql
 	} else {
 		DBcharset = MysqlDBcharset
 	}
-	mysqldb = &MysqlDB{MysqlDBHost, MysqlDBuser, MysqlDBName, MysqlDBpass, DBcharset, MysqlDBPort, nil, nil, nil}
+	mysqldb = &MysqlDB{MysqlDBHost, MysqlDBuser, MysqlDBName, MysqlDBpass, DBcharset, MysqlDBPort, nil, nil}
 	err = mysqldb.conn(MaxIdleConns, MaxOpenConns)
 	if err != nil {
 		log.Panicln(err)
@@ -105,7 +105,6 @@ type MysqlDB struct {
 	port                              int
 	dbConn                            *sql.DB
 	fieldlist                         []string
-	tx                                *sql.Tx
 }
 
 func (mdb *MysqlDB) conn(MaxIdleConns int, MaxOpenConns int) error {

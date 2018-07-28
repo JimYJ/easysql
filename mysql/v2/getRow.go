@@ -61,7 +61,12 @@ func (mdb *MysqlDB) stmtQueryRow(query string, param ...interface{}) (map[string
 		printErrors(err)
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = column
+				b, ok := column.([]byte)
+				if ok {
+					rowData[clos[k]] = string(b)
+				} else {
+					rowData[clos[k]] = column
+				}
 			} else {
 				rowData[clos[k]] = nil
 			}

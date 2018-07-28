@@ -6,18 +6,25 @@ import (
 	"errors"
 )
 
-//TxBegin transaction begin with default isolation level is dependent
-func (mdb *MysqlDB) TxBegin() error {
-	var err error
-	mdb.tx, err = mdb.dbConn.Begin()
-	printErrors(err)
-	if err != nil {
-		return err
-	}
-	return nil
+// TxConn tx obj
+type TxConn struct {
+	tx        *sql.Tx
+	fieldlist []string
 }
 
-// TxBeginWithIsol transaction begin with custom isolation level is dependent
+//Begin transaction begin with default isolation level is dependent
+func (mdb *MysqlDB) Begin() (*TxConn, error) {
+	var err error
+	txConn := &TxConn{}
+	txConn.tx, err = mdb.dbConn.Begin()
+	printErrors(err)
+	if err != nil {
+		return nil, err
+	}
+	return txConn, nil
+}
+
+// BeginWithIsol transaction begin with custom isolation level is dependent
 // LevelDefault 默认级别
 // LevelReadUncommitted 读未提交
 // LevelReadCommitted 读已提交
@@ -26,29 +33,35 @@ func (mdb *MysqlDB) TxBegin() error {
 // LevelSnapshot 可读快照
 // LevelSerializable 可串行化
 // LevelLinearizable 可线性化
-func (mdb *MysqlDB) TxBeginWithIsol(isolLevel sql.IsolationLevel, readOnly bool) error {
-	var err error
+func (mdb *MysqlDB) BeginWithIsol(isolLevel sql.IsolationLevel, readOnly bool) (*TxConn, error) {
 	// ctx, cancel := context.WithTimeout(context.Background(), 15*time.Millisecond)
 	// defer cancel()
-	mdb.tx, err = mdb.dbConn.BeginTx(context.Background(), &sql.TxOptions{
+	var err error
+	txConn := &TxConn{}
+	txConn.tx, err = mdb.dbConn.BeginTx(context.Background(), &sql.TxOptions{
 		Isolation: isolLevel,
 		ReadOnly:  readOnly,
 	})
 	printErrors(err)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return txConn, nil
 }
 
-//TxCommit transaction commit
-func (mdb *MysqlDB) TxCommit() error {
-	if mdb.tx == nil {
+//SetFields  set field name
+func (txConn *TxConn) SetFields(fieldlist []string) {
+	txConn.fieldlist = fieldlist
+}
+
+//Commit transaction commit
+func (txConn *TxConn) Commit() error {
+	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
 		printErrors(err)
 		return err
 	}
-	err := mdb.tx.Commit()
+	err := txConn.tx.Commit()
 	printErrors(err)
 	if err != nil {
 		return err
@@ -56,14 +69,14 @@ func (mdb *MysqlDB) TxCommit() error {
 	return nil
 }
 
-//TxRollback transaction rollback
-func (mdb *MysqlDB) TxRollback() error {
-	if mdb.tx == nil {
+//Rollback transaction rollback
+func (txConn *TxConn) Rollback() error {
+	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
 		printErrors(err)
 		return err
 	}
-	err := mdb.tx.Rollback()
+	err := txConn.tx.Rollback()
 	printErrors(err)
 	if err != nil {
 		return err
@@ -71,12 +84,12 @@ func (mdb *MysqlDB) TxRollback() error {
 	return nil
 }
 
-func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (int64, error) {
-	if mdb.tx == nil {
+func (txConn *TxConn) stmtExec(query string, qtype int, args ...interface{}) (int64, error) {
+	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
 		return 0, err
 	}
-	stmt, err := mdb.tx.Prepare(query)
+	stmt, err := txConn.tx.Prepare(query)
 	if err != nil {
 		return 0, err
 	}
@@ -97,32 +110,32 @@ func (mdb *MysqlDB) stmtTxExec(query string, qtype int, args ...interface{}) (in
 	return result, err2
 }
 
-//TxUpdate Update operation
-func (mdb *MysqlDB) TxUpdate(query string, args ...interface{}) (int64, error) {
+//Update Update operation
+func (txConn *TxConn) Update(query string, args ...interface{}) (int64, error) {
 	lastQuery = getQuery(query, args...)
-	return mdb.stmtTxExec(query, update, args...)
+	return txConn.stmtExec(query, update, args...)
 }
 
-//TxInsert Insert operation
-func (mdb *MysqlDB) TxInsert(query string, args ...interface{}) (int64, error) {
+//Insert Insert operation
+func (txConn *TxConn) Insert(query string, args ...interface{}) (int64, error) {
 	lastQuery = getQuery(query, args...)
-	return mdb.stmtTxExec(query, insert, args...)
+	return txConn.stmtExec(query, insert, args...)
 }
 
-//TxDelete Delete operation
-func (mdb *MysqlDB) TxDelete(query string, args ...interface{}) (int64, error) {
+//Delete Delete operation
+func (txConn *TxConn) Delete(query string, args ...interface{}) (int64, error) {
 	lastQuery = getQuery(query, args...)
-	return mdb.stmtTxExec(query, delete, args...)
+	return txConn.stmtExec(query, delete, args...)
 }
 
-// TxGetVal get single value by transaction
-func (mdb *MysqlDB) TxGetVal(query string, args ...interface{}) (interface{}, error) {
+// GetVal get single value by transaction
+func (txConn *TxConn) GetVal(query string, args ...interface{}) (interface{}, error) {
 	lastQuery = getQuery(query, args...)
-	if mdb.tx == nil {
+	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
 		return "", err
 	}
-	stmt, err := mdb.tx.Prepare(query)
+	stmt, err := txConn.tx.Prepare(query)
 	if err != nil {
 		return "", err
 	}
@@ -131,17 +144,21 @@ func (mdb *MysqlDB) TxGetVal(query string, args ...interface{}) (interface{}, er
 	row := stmt.QueryRow(args...)
 	var value interface{}
 	err2 = row.Scan(&value)
+	b, ok := value.([]byte)
+	if ok {
+		value = string(b)
+	}
 	return value, err2
 }
 
-// TxGetRow get single row data by transaction
-func (mdb *MysqlDB) TxGetRow(query string, args ...interface{}) (map[string]interface{}, error) {
+// GetRow get single row data by transaction
+func (txConn *TxConn) GetRow(query string, args ...interface{}) (map[string]interface{}, error) {
 	lastQuery = getQuery(query, args...)
-	if mdb.tx == nil {
+	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
 		return nil, err
 	}
-	stmt, err := mdb.tx.Prepare(query)
+	stmt, err := txConn.tx.Prepare(query)
 	if err != nil {
 		return nil, err
 	}
@@ -157,16 +174,16 @@ func (mdb *MysqlDB) TxGetRow(query string, args ...interface{}) (map[string]inte
 		return nil, err
 	}
 	/* check custom field*/
-	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
+	if txConn.fieldlist != nil && len(columns) != len(txConn.fieldlist) {
 		err := errors.New(errorSetField)
 		printErrors(err)
 		return nil, err
 	}
 	var clos []string
-	if mdb.fieldlist == nil {
+	if txConn.fieldlist == nil {
 		clos = columns
 	} else {
-		clos = mdb.fieldlist
+		clos = txConn.fieldlist
 	}
 	/* check custom field end*/
 	columnName := make([]interface{}, len(columns))
@@ -180,25 +197,30 @@ func (mdb *MysqlDB) TxGetRow(query string, args ...interface{}) (map[string]inte
 		printErrors(err)
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = column
+				b, ok := column.([]byte)
+				if ok {
+					rowData[clos[k]] = string(b)
+				} else {
+					rowData[clos[k]] = column
+				}
 			} else {
 				rowData[clos[k]] = nil
 			}
 		}
 		break
 	}
-	mdb.fieldlist = nil
+	txConn.fieldlist = nil
 	return rowData, nil
 }
 
-// TxGetResults get multiple rows data by transaction
-func (mdb *MysqlDB) TxGetResults(query string, args ...interface{}) ([]map[string]interface{}, error) {
+// GetResults get multiple rows data by transaction
+func (txConn *TxConn) GetResults(query string, args ...interface{}) ([]map[string]interface{}, error) {
 	lastQuery = getQuery(query, args...)
-	if mdb.tx == nil {
+	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
 		return nil, err
 	}
-	stmt, err := mdb.tx.Prepare(query)
+	stmt, err := txConn.tx.Prepare(query)
 	if err != nil {
 		return nil, err
 	}
@@ -215,14 +237,14 @@ func (mdb *MysqlDB) TxGetResults(query string, args ...interface{}) ([]map[strin
 		return nil, err
 	}
 	/* check custom field*/
-	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
+	if txConn.fieldlist != nil && len(columns) != len(txConn.fieldlist) {
 		return nil, errors.New(errorSetField)
 	}
 	var clos []string
-	if mdb.fieldlist == nil {
+	if txConn.fieldlist == nil {
 		clos = columns
 	} else {
-		clos = mdb.fieldlist
+		clos = txConn.fieldlist
 	}
 	/* check custom field end*/
 	columnName := make([]interface{}, len(columns))
@@ -237,13 +259,18 @@ func (mdb *MysqlDB) TxGetResults(query string, args ...interface{}) ([]map[strin
 		rowData := make(map[string]interface{}, len(columns))
 		for k, column := range columnName {
 			if column != nil {
-				rowData[clos[k]] = column
+				b, ok := column.([]byte)
+				if ok {
+					rowData[clos[k]] = string(b)
+				} else {
+					rowData[clos[k]] = column
+				}
 			} else {
 				rowData[clos[k]] = nil
 			}
 		}
 		result = append(result, rowData)
 	}
-	mdb.fieldlist = nil
+	txConn.fieldlist = nil
 	return result, nil
 }
