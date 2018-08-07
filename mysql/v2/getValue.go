@@ -1,4 +1,4 @@
-package v2
+package mysql
 
 func (mdb *MysqlDB) getValByStmt(query string, param ...interface{}) (interface{}, error) {
 	stmt, err := mdb.dbConn.Prepare(query)

@@ -1,4 +1,4 @@
-package v2
+package mysql
 
 func (mdb *MysqlDB) stmtExec(query string, qtype int, args ...interface{}) (int64, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
