@@ -6,7 +6,7 @@
 easysql encapsulated database operation, simplifying the use of the database.(include Mysql database,more database is coming soon)
 
 ## what's new:
-2.0 v2 is coming, recode tx,Optimize code and structure(new readme is coming soon)<br>
+2.0 v2 is coming, recode tx,optimize code and structure(new readme is coming soon)<br>
 ...<br>
 1.2 add cache mode<br>
 1.1 add debug mode and debug func<br>
