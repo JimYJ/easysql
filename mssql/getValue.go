@@ -1,6 +1,6 @@
-package mysql
+package mssql
 
-func (mdb *MysqlDB) getValByStmt(query string, param ...interface{}) (interface{}, error) {
+func (mdb *MsSQL) getValByStmt(query string, param ...interface{}) (interface{}, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
 	printErrors(err)
 	if err != nil {
@@ -15,7 +15,7 @@ func (mdb *MysqlDB) getValByStmt(query string, param ...interface{}) (interface{
 }
 
 //GetVal get single value
-func (mdb *MysqlDB) GetVal(query string, param ...interface{}) (interface{}, error) {
+func (mdb *MsSQL) GetVal(query string, param ...interface{}) (interface{}, error) {
 	lastQuery = getQuery(query, param...)
 	var value interface{}
 	var err error

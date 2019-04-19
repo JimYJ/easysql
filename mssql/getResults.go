@@ -1,11 +1,11 @@
-package mysql
+package mssql
 
 import (
 	"errors"
 )
 
 //GetResults get multiple rows data
-func (mdb *MysqlDB) GetResults(query string, param ...interface{}) ([]map[string]interface{}, error) {
+func (mdb *MsSQL) GetResults(query string, param ...interface{}) ([]map[string]interface{}, error) {
 	lastQuery = getQuery(query, param...)
 	var rs []map[string]interface{}
 	var err error
@@ -20,7 +20,7 @@ func (mdb *MysqlDB) GetResults(query string, param ...interface{}) ([]map[string
 	return rs, err
 }
 
-func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]interface{}, error) {
+func (mdb *MsSQL) stmtQuery(query string, param ...interface{}) ([]map[string]interface{}, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
 	printErrors(err)
 	if err != nil {

@@ -1,15 +1,14 @@
-package mysql
+package mssql
 
 import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"github.com/patrickmn/go-cache"
 	"log"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/patrickmn/go-cache"
 )
 
 //Debug Print last query sql

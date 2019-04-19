@@ -1,26 +1,26 @@
-package mysql
+package mssql
 
 import (
 	"errors"
 )
 
-//GetResults get multiple rows data
-func (mdb *MysqlDB) GetResults(query string, param ...interface{}) ([]map[string]interface{}, error) {
+//GetRow get single row data
+func (mdb *MsSQL) GetRow(query string, param ...interface{}) (map[string]interface{}, error) {
 	lastQuery = getQuery(query, param...)
-	var rs []map[string]interface{}
+	var rs map[string]interface{}
 	var err error
 	if cacheMode {
 		value, found := checkCache()
 		if found {
-			return value.([]map[string]interface{}), nil
+			return value.(map[string]interface{}), nil
 		}
 	}
-	rs, err = mdb.stmtQuery(query, param...)
+	rs, err = mdb.stmtQueryRow(query, param...)
 	setCache(rs)
 	return rs, err
 }
 
-func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]interface{}, error) {
+func (mdb *MsSQL) stmtQueryRow(query string, param ...interface{}) (map[string]interface{}, error) {
 	stmt, err := mdb.dbConn.Prepare(query)
 	printErrors(err)
 	if err != nil {
@@ -34,13 +34,14 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 	}
 	defer rows.Close()
 	columns, err := rows.Columns()
-	printErrors(err)
 	if err != nil {
 		return nil, err
 	}
 	/* check custom field*/
 	if mdb.fieldlist != nil && len(columns) != len(mdb.fieldlist) {
-		return nil, errors.New(errorSetField)
+		err := errors.New(errorSetField)
+		printErrors(err)
+		return nil, err
 	}
 	var clos []string
 	if mdb.fieldlist == nil {
@@ -54,11 +55,10 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
 	}
-	var result []map[string]interface{}
+	rowData := make(map[string]interface{}, len(columns))
 	for rows.Next() {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
-		rowData := make(map[string]interface{}, len(columns))
 		for k, column := range columnName {
 			if column != nil {
 				b, ok := column.([]byte)
@@ -71,8 +71,8 @@ func (mdb *MysqlDB) stmtQuery(query string, param ...interface{}) ([]map[string]
 				rowData[clos[k]] = nil
 			}
 		}
-		result = append(result, rowData)
+		break
 	}
 	mdb.fieldlist = nil
-	return result, nil
+	return rowData, nil
 }

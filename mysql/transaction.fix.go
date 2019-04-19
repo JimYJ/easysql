@@ -129,30 +129,26 @@ func (txConn *TxConn) Delete(query string, args ...interface{}) (int64, error) {
 }
 
 // GetVal get single value by transaction
-func (txConn *TxConn) GetVal(query string, args ...interface{}) (interface{}, error) {
+func (txConn *TxConn) GetVal(query string, args ...interface{}) (string, error) {
 	lastQuery = getQuery(query, args...)
 	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
-		return nil, err
+		return "", err
 	}
 	stmt, err := txConn.tx.Prepare(query)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	var err2 error
 	printErrors(err2)
 	row := stmt.QueryRow(args...)
-	var value interface{}
-	err2 = row.Scan(&value)
-	b, ok := value.([]byte)
-	if ok {
-		value = string(b)
-	}
-	return value, err2
+	var str string
+	err2 = row.Scan(&str)
+	return str, err2
 }
 
 // GetRow get single row data by transaction
-func (txConn *TxConn) GetRow(query string, args ...interface{}) (map[string]interface{}, error) {
+func (txConn *TxConn) GetRow(query string, args ...interface{}) (map[string]string, error) {
 	lastQuery = getQuery(query, args...)
 	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
@@ -191,20 +187,15 @@ func (txConn *TxConn) GetRow(query string, args ...interface{}) (map[string]inte
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
 	}
-	rowData := make(map[string]interface{}, len(columns))
+	rowData := make(map[string]string, len(columns))
 	for rows.Next() {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
 		for k, column := range columnName {
 			if column != nil {
-				b, ok := column.([]byte)
-				if ok {
-					rowData[clos[k]] = string(b)
-				} else {
-					rowData[clos[k]] = column
-				}
+				rowData[clos[k]] = anyToString(column)
 			} else {
-				rowData[clos[k]] = nil
+				rowData[clos[k]] = ""
 			}
 		}
 		break
@@ -214,7 +205,7 @@ func (txConn *TxConn) GetRow(query string, args ...interface{}) (map[string]inte
 }
 
 // GetResults get multiple rows data by transaction
-func (txConn *TxConn) GetResults(query string, args ...interface{}) ([]map[string]interface{}, error) {
+func (txConn *TxConn) GetResults(query string, args ...interface{}) ([]map[string]string, error) {
 	lastQuery = getQuery(query, args...)
 	if txConn.tx == nil {
 		err := errors.New(errorTxInit)
@@ -252,21 +243,16 @@ func (txConn *TxConn) GetResults(query string, args ...interface{}) ([]map[strin
 	for i := range colbuff {
 		colbuff[i] = &columnName[i]
 	}
-	var result []map[string]interface{}
+	var result []map[string]string
 	for rows.Next() {
 		err := rows.Scan(colbuff...)
 		printErrors(err)
-		rowData := make(map[string]interface{}, len(columns))
+		rowData := make(map[string]string, len(columns))
 		for k, column := range columnName {
 			if column != nil {
-				b, ok := column.([]byte)
-				if ok {
-					rowData[clos[k]] = string(b)
-				} else {
-					rowData[clos[k]] = column
-				}
+				rowData[clos[k]] = anyToString(column)
 			} else {
-				rowData[clos[k]] = nil
+				rowData[clos[k]] = ""
 			}
 		}
 		result = append(result, rowData)

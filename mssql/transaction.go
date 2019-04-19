@@ -1,4 +1,4 @@
-package mysql
+package mssql
 
 import (
 	"context"
@@ -13,7 +13,7 @@ type TxConn struct {
 }
 
 //Begin transaction begin with default isolation level is dependent
-func (mdb *MysqlDB) Begin() (*TxConn, error) {
+func (mdb *MsSQL) Begin() (*TxConn, error) {
 	var err error
 	txConn := &TxConn{}
 	txConn.tx, err = mdb.dbConn.Begin()
@@ -33,7 +33,7 @@ func (mdb *MysqlDB) Begin() (*TxConn, error) {
 // LevelSnapshot 可读快照
 // LevelSerializable 可串行化
 // LevelLinearizable 可线性化
-func (mdb *MysqlDB) BeginWithIsol(isolLevel sql.IsolationLevel, readOnly bool) (*TxConn, error) {
+func (mdb *MsSQL) BeginWithIsol(isolLevel sql.IsolationLevel, readOnly bool) (*TxConn, error) {
 	// ctx, cancel := context.WithTimeout(context.Background(), 15*time.Millisecond)
 	// defer cancel()
 	var err error
