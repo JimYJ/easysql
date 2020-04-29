@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/Go-SQL-Driver/MySQL" //no use
+	_ "github.com/go-sql-driver/mysql" //no use
 	"github.com/patrickmn/go-cache"
 	"sync"
 	"time"
